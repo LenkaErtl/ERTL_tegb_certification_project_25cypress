@@ -1,0 +1,19 @@
+{
+  "name": "ertl_tegb_certification_project_25cypress",
+  "version": "1.0.0",
+  "description": "Tento projekt obsahuje automatizované testy pro bankovní aplikaci TEG#B jako součást certifikačního zadání. Testy jsou psány v Cypressu a pokrývají E2E scénáře, API testy, Data Driven testy a atomické testy dashboardu.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LenkaErtl/ERTL_tegb_certification_project_25cypress.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LenkaErtl/ERTL_tegb_certification_project_25cypress/issues"
+  },
+  "homepage": "https://github.com/LenkaErtl/ERTL_tegb_certification_project_25cypress#readme"
+}

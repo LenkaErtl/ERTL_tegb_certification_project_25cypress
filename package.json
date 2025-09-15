@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/LenkaErtl/ERTL_tegb_certification_project_25cypress/issues"
   },
-  "homepage": "https://github.com/LenkaErtl/ERTL_tegb_certification_project_25cypress#readme"
+  "homepage": "https://github.com/LenkaErtl/ERTL_tegb_certification_project_25cypress#readme",
+  "devDependencies": {
+    "@cypress/xpath": "^2.0.3",
+    "@faker-js/faker": "^9.9.0",
+    "cypress": "^15.2.0"
+  }
 }

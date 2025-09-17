@@ -1,10 +1,4 @@
-import { generateUser } from "../support/helpers/faker_generator.js";
-import { customElement } from "../support/helpers/custom_element.js";
-
-import { AccountsPage } from "../support/page_objects/tegb/accounts_page.js";
-import { DashboardPage } from "../support/page_objects/tegb/dashboard_page.js";
-import { ProfilePage } from "../support/page_objects/tegb/profile_page.js";
-import { TegBLoginPage } from "../support/page_objects/tegb/tegb_login_page.js";
+import { generateUser } from "../../support/helpers/faker_generator.js";
 
 describe("TEGB E2E scénář podle zadání", () => {
   const userData = generateUser(); // generujeme unikátního uživatele
@@ -103,15 +97,33 @@ describe("TEGB E2E scénář podle zadání", () => {
   });
 
   it("5. Kontrola údajů profilu po uložení", () => {
+    const { loginname, password, firstName, lastName, email, phone, age } =
+      userData;
+
     cy.visit("https://tegb-frontend-88542200c6db.herokuapp.com/");
 
-    cy.get("form input[type='text']").clear().type(userData.loginname);
-    cy.get("form input[type='password']").clear().type(userData.password);
+    cy.get("form input[type='text']").clear().type(loginname);
+    cy.get("form input[type='password']").clear().type(password);
     cy.contains("Přihlásit se").click();
 
     cy.url().should("include", "/dashboard");
 
-    new ProfilePage().verifyProfile(userData);
+    // Intercept a počkej na profil
+    cy.intercept("GET", "**/tegb/profile").as("getProfile");
+    cy.wait("@getProfile");
+
+    // Počkej na render profilu
+    cy.get(".profile-details", { timeout: 10000 }).should("be.visible");
+
+    // Ověření obsahu – flexibilně
+    cy.get(".profile-details").should("contain.text", firstName);
+    cy.get(".profile-details").should("contain.text", lastName);
+    cy.get(".profile-details").should("contain.text", email);
+    cy.get(".profile-details").should("contain.text", phone);
+
+    if (age) {
+      cy.get(".profile-details").should("contain.text", age.toString());
+    }
   });
 
   it("6. Zobrazení účtu", () => {

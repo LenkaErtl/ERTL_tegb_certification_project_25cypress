@@ -4,7 +4,7 @@
   "description": "Tento projekt obsahuje automatizované testy pro bankovní aplikaci TEG#B jako součást certifikačního zadání. Testy jsou psány v Cypressu a pokrývají E2E scénáře, API testy, Data Driven testy a atomické testy dashboardu.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cypress open"
   },
   "repository": {
     "type": "git",

@@ -4,11 +4,10 @@ import { DashboardPage } from "./dashboard_page.js";
 
 export class TegBLoginPage {
   constructor() {
-    // URL míří přímo na login stránku nasazené aplikace
     this.url = "https://tegb-frontend-88542200c6db.herokuapp.com/login";
 
-    // Selektory definované přes helper
-    this.usernameInput = customElement('[data-testid="username"]');
+    // Opravený selektor
+    this.usernameInput = customElement('[data-testid="username-input"]');
     this.passwordInput = customElement('[data-testid="password"]');
     this.loginButton = customElement('[data-testid="log_in"]');
   }

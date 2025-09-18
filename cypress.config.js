@@ -4,7 +4,7 @@ module.exports = defineConfig({
   e2e: {
     setupNodeEvents(on, config) {},
 
-    // 👇 Přidáme baseUrl
+    //  Přidáme baseUrl
     baseUrl: "https://tegb-frontend-88542200c6db.herokuapp.com",
 
     env: {

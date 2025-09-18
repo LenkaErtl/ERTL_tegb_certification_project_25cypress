@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "es2020",
+    "esModuleInterop": true,
+    "types": ["cypress", "@faker-js/faker"]
+  },
+  "exclude": ["node_modules"]
+}

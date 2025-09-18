@@ -1,0 +1,25 @@
+{
+  "header": {
+    "title": "Dashboard"
+  },
+  "menu": {
+    "items": [
+      {
+        "name": "Accounts",
+        "url": "/accounts"
+      },
+      {
+        "name": "Profile",
+        "url": "/profile"
+      }
+    ]
+  },
+  "sections": {
+    "accounts": {
+      "title": "Účty"
+    },
+    "profile": {
+      "title": "Profil"
+    }
+  }
+}

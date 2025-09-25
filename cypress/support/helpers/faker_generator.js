@@ -8,10 +8,7 @@ export const generateUser = () => {
     firstName,
     lastName,
     email: faker.internet.email({ firstName, lastName }),
-    loginname: faker.internet
-      .userName({ firstName, lastName })
-      .replace(/[^a-zA-Z0-9]/g, "")
-      .slice(0, 10),
+    loginname: faker.internet.username({ firstName, lastName }).slice(0, 10),
     phone: faker.phone.number("+420 ### ### ###"),
     age: faker.number.int({ min: 18, max: 99 }),
     address: faker.location.streetAddress(),

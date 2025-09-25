@@ -2,29 +2,40 @@ import { customElement } from "../../helpers/custom_element.js";
 
 export class AccountsPage {
   constructor() {
-    this.titleHeader = customElement('[data-testid="title"]');
+    this.titleHeader = customElement('[data-testid="accounts-title"]');
     this.accountCard = customElement('[data-testid="account_card"]');
     this.accountBalance = customElement('[data-testid="account_balance"]');
     this.accountCurrency = customElement('[data-testid="account_currency"]');
   }
 
-  titleHaveText(titleText) {
-    this.titleHeader.haveText(titleText);
+  shouldBeVisible() {
+    this.titleHeader.isVisible();
     return this;
   }
 
-  verifyAccountVisible() {
+  shouldHaveTitle(expectedTitle) {
+    this.titleHeader.haveText(expectedTitle);
+    return this;
+  }
+
+  shouldShowAccountCard() {
     this.accountCard.isVisible();
     return this;
   }
 
-  checkBalance(expectedAmount) {
-    this.accountBalance.containsText(`${expectedAmount}`);
+  shouldShowBalance(amount) {
+    this.accountBalance.containsText(`${amount}`);
     return this;
   }
 
-  checkCurrency(expectedCurrency) {
-    this.accountCurrency.containsText(expectedCurrency);
+  shouldShowCurrency(currency) {
+    this.accountCurrency.containsText(currency);
     return this;
+  }
+
+  shouldShowAccountDetails({ balance, currency }) {
+    return this.shouldShowAccountCard()
+      .shouldShowBalance(balance)
+      .shouldShowCurrency(currency);
   }
 }

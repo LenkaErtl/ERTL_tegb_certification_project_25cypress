@@ -1,20 +1,12 @@
 import { customElement } from "../../helpers/custom_element.js";
-
 import { DashboardPage } from "./dashboard_page.js";
 
 export class TegBLoginPage {
   constructor() {
-    this.url = "https://tegb-frontend-88542200c6db.herokuapp.com/login";
-
-    // Opravený selektor
-    this.usernameInput = customElement('[data-testid="username-input"]');
-    this.passwordInput = customElement('[data-testid="password"]');
-    this.loginButton = customElement('[data-testid="log_in"]');
-  }
-
-  openTegb() {
-    cy.visit(this.url);
-    return this;
+    // Login probíhá na homepage, ne na /login
+    this.usernameInput = customElement('input[name="username"]');
+    this.passwordInput = customElement('input[name="password"]');
+    this.loginButton = customElement('[data-testid="submit-button"]');
   }
 
   typeUsername(username) {
@@ -28,16 +20,26 @@ export class TegBLoginPage {
   }
 
   clickLogin() {
-    cy.intercept("POST", "/auth/login").as("login_api");
+    cy.intercept("POST", "**/login").as("login_api");
     this.loginButton.click();
     cy.wait("@login_api");
+    cy.location("pathname").should("include", "/dashboard");
     return new DashboardPage();
   }
 
-  login(username, password) {
-    return this.openTegb()
-      .typeUsername(username)
-      .typePassword(password)
-      .clickLogin();
+  loginFromHomepage(username, password) {
+    cy.intercept("POST", "**/login").as("login_api");
+    cy.get('input[name="username"]')
+      .should("be.visible")
+      .clear()
+      .type(username);
+    cy.get('input[name="password"]')
+      .should("be.visible")
+      .clear()
+      .type(password);
+    cy.get('[data-testid="submit-button"]').should("be.visible").click();
+    cy.wait("@login_api");
+    cy.location("pathname").should("include", "/dashboard");
+    return new DashboardPage();
   }
 }

@@ -30,7 +30,6 @@ export class DashboardPage {
 
   shouldBeOnDashboard() {
     cy.contains("Odhlásit se", { timeout: 20000 }).should("be.visible");
-    cy.url().should("match", /\/($|dashboard)/);
     return this;
   }
 

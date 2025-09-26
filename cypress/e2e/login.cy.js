@@ -1,8 +1,7 @@
-import { DashboardPage } from "../support/page_objects/tegb_page_objects/dashboard_page.js";
+import { DashboardPage } from "../support/page_objects/tegb_page_objects/dashboard_page";
 
 describe("TEGB – Přihlášení a přechod na dashboard", () => {
   const dashboardPage = new DashboardPage();
-
   const user = {
     username: Cypress.env("username"),
     email: Cypress.env("email"),
@@ -14,7 +13,7 @@ describe("TEGB – Přihlášení a přechod na dashboard", () => {
   };
 
   before(() => {
-    // Registrace uživatele přes API
+    // registrace uživatele přes API (pokud už existuje, failOnStatusCode: false to ignoruje)
     cy.request({
       method: "POST",
       url: `${Cypress.env("apiUrl")}/tegb/register`,
@@ -27,7 +26,7 @@ describe("TEGB – Přihlášení a přechod na dashboard", () => {
         phone: user.phone,
         age: user.age,
       },
-      failOnStatusCode: false, // když už user existuje, test nespadne
+      failOnStatusCode: false,
     });
   });
 
@@ -35,7 +34,7 @@ describe("TEGB – Přihlášení a přechod na dashboard", () => {
     // zachytíme login request
     cy.intercept("POST", "**/tegb/login").as("loginRequest");
 
-    // provedeme login přes page object
+    // použijeme page object, který už řeší obě varianty login formuláře
     dashboardPage.login({ loginname: user.username, password: user.password });
 
     // počkáme na odpověď backendu a zalogujeme si ji
@@ -44,7 +43,10 @@ describe("TEGB – Přihlášení a přechod na dashboard", () => {
       cy.log("Login body:", JSON.stringify(interception.response?.body));
     });
 
-    // teprve pak ověřujeme dashboard a logout
-    dashboardPage.shouldBeOnDashboard().logout().shouldBeLoggedOut();
+    // ověření dashboardu
+    dashboardPage.shouldBeOnDashboard();
+
+    // odhlášení
+    dashboardPage.logout().shouldBeLoggedOut();
   });
 });

@@ -16,8 +16,10 @@ export class DashboardPage {
   }
 
   shouldBeOnDashboard() {
-    // Počkej, dokud nejsi na /dashboard
-    cy.url().should("include", "/dashboard");
+    // místo kontroly URL čekáme na unikátní obsah dashboardu
+    cy.get('[data-testid="dashboard-content"]', { timeout: 20000 }).should(
+      "be.visible"
+    );
     return this;
   }
 
@@ -32,7 +34,6 @@ export class DashboardPage {
   }
 
   logout() {
-    // Klikni na tlačítko jen pokud jsi na dashboardu
     cy.location("pathname").then((path) => {
       if (path.includes("/dashboard")) {
         cy.get("button.logout-link", { timeout: 15000 })
@@ -41,7 +42,7 @@ export class DashboardPage {
           .click();
       } else {
         cy.log(
-          " Nejsem na /dashboard – tlačítko Odhlásit se není dostupné, krok přeskočen"
+          "Nejsem na /dashboard – tlačítko Odhlásit se není dostupné, krok přeskočen"
         );
       }
     });
@@ -49,7 +50,6 @@ export class DashboardPage {
   }
 
   shouldBeLoggedOut() {
-    // Ověř, že jsi zpět na rootu a je vidět tlačítko Přihlásit se
     cy.url().should("eq", `${Cypress.config("baseUrl")}/`);
     cy.contains("Přihlásit se", { timeout: 10000 }).should("be.visible");
     return this;

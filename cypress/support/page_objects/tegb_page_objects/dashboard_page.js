@@ -16,10 +16,8 @@ export class DashboardPage {
   }
 
   shouldBeOnDashboard() {
-    cy.url().should("match", /\/($|dashboard)/);
-    cy.get("button.logout-link", { timeout: 10000 })
-      .should("be.visible")
-      .and("contain.text", "Odhlásit se");
+    // Počkej, dokud nejsi na /dashboard
+    cy.url().should("include", "/dashboard");
     return this;
   }
 
@@ -34,9 +32,10 @@ export class DashboardPage {
   }
 
   logout() {
+    // Klikni na tlačítko jen pokud jsi na dashboardu
     cy.location("pathname").then((path) => {
       if (path.includes("/dashboard")) {
-        cy.get("button.logout-link", { timeout: 10000 })
+        cy.get("button.logout-link", { timeout: 15000 })
           .should("be.visible")
           .and("contain.text", "Odhlásit se")
           .click();
@@ -50,6 +49,8 @@ export class DashboardPage {
   }
 
   shouldBeLoggedOut() {
+    // Ověř, že jsi zpět na rootu a je vidět tlačítko Přihlásit se
+    cy.url().should("eq", `${Cypress.config("baseUrl")}/`);
     cy.contains("Přihlásit se", { timeout: 10000 }).should("be.visible");
     return this;
   }

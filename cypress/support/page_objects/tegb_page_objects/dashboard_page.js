@@ -16,10 +16,10 @@ export class DashboardPage {
   }
 
   shouldBeOnDashboard() {
-    // místo kontroly URL čekáme na unikátní obsah dashboardu
-    cy.get('[data-testid="dashboard-content"]', { timeout: 20000 }).should(
-      "be.visible"
-    );
+    cy.url().should("include", "/dashboard");
+    cy.get("button.logout-link", { timeout: 20000 })
+      .should("be.visible")
+      .and("contain.text", "Odhlásit se");
     return this;
   }
 

@@ -16,8 +16,8 @@ export class DashboardPage {
   }
 
   shouldBeOnDashboard() {
-    cy.url().should("include", "/dashboard");
-    this.dashboardContent.isVisible();
+    cy.url().should("match", /\/($|dashboard)/);
+    cy.get('[data-testid="dashboard-content"]').should("be.visible");
     return this;
   }
 

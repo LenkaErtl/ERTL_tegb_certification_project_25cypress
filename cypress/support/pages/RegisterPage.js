@@ -17,7 +17,9 @@ export class RegisterPage {
   }
 
   verifySuccess() {
-    cy.contains("Registrace úspěšná! Vítejte v TEG#B!").should("be.visible");
+    cy.get('[data-testid="success-message"]')
+      .should("be.visible")
+      .and("contain.text", "Registrace úspěšná! Vítejte v TEG#B!");
     return this;
   }
 }

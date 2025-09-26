@@ -17,7 +17,9 @@ export class DashboardPage {
 
   shouldBeOnDashboard() {
     cy.url().should("match", /\/($|dashboard)/);
-    cy.contains("Odhlásit se").should("be.visible");
+    cy.get("button.logout-link")
+      .should("be.visible")
+      .and("contain.text", "Odhlásit se");
     return this;
   }
 
@@ -27,7 +29,7 @@ export class DashboardPage {
   }
 
   logout() {
-    cy.contains("Odhlásit se").click();
+    cy.get("button.logout-link").click();
     return this;
   }
 

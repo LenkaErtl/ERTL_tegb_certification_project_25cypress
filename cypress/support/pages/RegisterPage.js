@@ -17,9 +17,9 @@ export class RegisterPage {
   }
 
   verifySuccess() {
-    cy.get('[data-testid="success-message"]')
-      .should("be.visible")
-      .and("contain.text", "Registrace úspěšná! Vítejte v TEG#B!");
+    // Po registraci tě aplikace vrátí na homepage (uživatel není přihlášen)
+    cy.url().should("eq", `${Cypress.env("frontendUrl")}/`);
+    cy.contains("Přihlásit se").should("be.visible");
     return this;
   }
 }

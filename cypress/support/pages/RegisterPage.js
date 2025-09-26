@@ -5,21 +5,21 @@ export class RegisterPage {
   }
 
   fillForm({ loginname, email, password }) {
-    cy.get('input[name="username"]').type(loginname);
-    cy.get('input[name="email"]').type(email);
-    cy.get('input[name="password"]').type(password);
+    cy.get('[data-testid="username-input"]').clear().type(loginname);
+    cy.get('[data-testid="email-input"]').clear().type(email);
+    cy.get('[data-testid="password-input"]').clear().type(password);
     return this;
   }
 
   submit() {
-    cy.contains("Registrovat").click();
+    cy.contains('button[data-testid="submit-button"]', "Registrovat").click();
     return this;
   }
 
   verifySuccess() {
-    // Po registraci tě aplikace vrátí na homepage (uživatel není přihlášen)
-    cy.url().should("eq", `${Cypress.env("frontendUrl")}/`);
+    cy.url().should("match", new RegExp(`${Cypress.env("frontendUrl")}/?$`));
     cy.contains("Přihlásit se").should("be.visible");
+    // volitelně: cy.contains("Registrace proběhla úspěšně").should("be.visible");
     return this;
   }
 }

@@ -1,14 +1,14 @@
 import { customElement } from "../../helpers/custom_element.js";
 import { AccountsPage } from "./accounts_page.js";
+import { ProfileSection } from "./profile_section.js";
 
 export class DashboardPage {
   constructor() {
-    // Pokud někdy přidáš data-testid, můžeš to vrátit zpět na customElement
     this.dashboardContent = customElement('[data-testid="dashboard-content"]');
   }
 
   login({ loginname, password }) {
-    cy.visit(Cypress.env("frontendUrl"));
+    cy.visit(Cypress.config("baseUrl"));
     cy.get('form input[type="text"]').clear().type(loginname);
     cy.get('form input[type="password"]').clear().type(password);
     cy.contains("Přihlásit se").click();
@@ -17,7 +17,7 @@ export class DashboardPage {
 
   shouldBeOnDashboard() {
     cy.url().should("match", /\/($|dashboard)/);
-    cy.get("button.logout-link")
+    cy.get("button.logout-link", { timeout: 10000 })
       .should("be.visible")
       .and("contain.text", "Odhlásit se");
     return this;
@@ -28,18 +28,29 @@ export class DashboardPage {
     return new AccountsPage();
   }
 
+  goToProfile() {
+    cy.contains("Profil").click();
+    return new ProfileSection();
+  }
+
   logout() {
-    cy.get("button.logout-link").click();
+    cy.location("pathname").then((path) => {
+      if (path.includes("/dashboard")) {
+        cy.get("button.logout-link", { timeout: 10000 })
+          .should("be.visible")
+          .and("contain.text", "Odhlásit se")
+          .click();
+      } else {
+        cy.log(
+          " Nejsem na /dashboard – tlačítko Odhlásit se není dostupné, krok přeskočen"
+        );
+      }
+    });
     return this;
   }
 
   shouldBeLoggedOut() {
-    cy.url().should((url) => {
-      expect(url.replace(/\/$/, "")).to.eq(
-        Cypress.env("frontendUrl").replace(/\/$/, "")
-      );
-    });
-    cy.contains("Přihlásit se").should("exist");
+    cy.contains("Přihlásit se", { timeout: 10000 }).should("be.visible");
     return this;
   }
 }

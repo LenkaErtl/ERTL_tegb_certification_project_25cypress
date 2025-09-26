@@ -1,6 +1,3 @@
-import { customElement } from "../../../support/helpers/custom_element.js";
-import { generateUser } from "../../../support/helpers/faker_generator.js";
-
 describe("Atomické testy na Dashboard", () => {
   // Před každým testem se přihlásíme a dostaneme na dashboard
   beforeEach(() => {

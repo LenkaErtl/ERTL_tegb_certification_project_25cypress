@@ -1,9 +1,9 @@
 import { customElement } from "../../helpers/custom_element.js";
 import { DashboardPage } from "./dashboard_page.js";
 
-export class TegBLoginPage {
+export class TegbLoginPage {
+  // sjednoceno malé b
   constructor() {
-    // Login probíhá na homepage, ne na /login
     this.usernameInput = customElement('input[name="username"]');
     this.passwordInput = customElement('input[name="password"]');
     this.loginButton = customElement('[data-testid="submit-button"]');

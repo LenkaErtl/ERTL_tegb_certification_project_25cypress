@@ -42,4 +42,13 @@ export class ProfileSection {
     cy.get('[data-testid="age"]').should("contain", age.toString());
     return this;
   }
+
+  // aliasy pro E2E test
+  updateProfile(profileData) {
+    return this.openEdit().fillProfile(profileData).submit();
+  }
+
+  verifyProfileUpdated(profileData) {
+    return this.verifyProfile(profileData);
+  }
 }

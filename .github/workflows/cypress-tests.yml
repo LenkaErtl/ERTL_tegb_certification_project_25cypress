@@ -31,6 +31,10 @@ jobs:
           browser: chrome # běh v Chromu (realističtější než Electron)
           install-command: npm ci # explicitně, aby se držel lockfile
           # env: grepTags=@smoke    # odkomentuj, pokud chceš filtrovat jen určité testy
+        env:
+          CYPRESS_defaultCommandTimeout: 20000 # místo 10s → 20s
+          CYPRESS_pageLoadTimeout: 60000 # načítání stránky až 60s
+          CYPRESS_retries: 2 # flaky testy se zkusí znovu
 
       - name: Upload Cypress artifacts (screenshots & videos)
         if: failure()

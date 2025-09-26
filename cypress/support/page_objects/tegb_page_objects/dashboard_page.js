@@ -17,7 +17,7 @@ export class DashboardPage {
 
   shouldBeOnDashboard() {
     cy.url().should("match", /\/($|dashboard)/);
-    cy.get('[data-testid="dashboard-content"]').should("be.visible");
+    cy.contains("Odhlásit se").should("be.visible");
     return this;
   }
 

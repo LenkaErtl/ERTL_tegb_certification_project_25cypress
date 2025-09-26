@@ -5,12 +5,27 @@ const loginApi = new LoginApi();
 const accountsApi = new AccountsApi();
 
 describe("API Test – Přihlášení a vytvoření účtu", () => {
-  it("1. Přihlášení přes API – status 201 a token, vytvoření účtu", () => {
-    const credentials = {
-      username: Cypress.env("username"),
-      password: Cypress.env("password"),
-    };
+  const credentials = {
+    username: "apitestuser",
+    email: "apitestuser@example.com",
+    password: "Test5577",
+  };
 
+  before(() => {
+    // Registrace uživatele – pokud už existuje, nevadí
+    cy.request({
+      method: "POST",
+      url: `${Cypress.env("apiUrl")}/tegb/register`,
+      body: {
+        username: credentials.username,
+        email: credentials.email,
+        password: credentials.password,
+      },
+      failOnStatusCode: false, // když už existuje, ignorujeme chybu
+    });
+  });
+
+  it("1. Přihlášení přes API – status 201 a token, vytvoření účtu", () => {
     // Login
     loginApi
       .login(credentials.username, credentials.password)

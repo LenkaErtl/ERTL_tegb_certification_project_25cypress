@@ -14,10 +14,10 @@ describe("TEGB – Přihlášení a přechod na dashboard", () => {
   };
 
   before(() => {
-    // pokus o registraci uživatele – pokud už existuje, backend vrátí chybu, ale test nespadne
+    // registrace uživatele – endpoint musí být /tegb/register
     cy.request({
       method: "POST",
-      url: "https://tegb-backend-877a0b063d29.herokuapp.com/register",
+      url: "https://tegb-backend-877a0b063d29.herokuapp.com/tegb/register",
       body: {
         username: user.username,
         email: user.email,
@@ -27,7 +27,7 @@ describe("TEGB – Přihlášení a přechod na dashboard", () => {
         phone: user.phone,
         age: user.age,
       },
-      failOnStatusCode: false, // aby test nespadl, když uživatel existuje
+      failOnStatusCode: false, // test nespadne, když uživatel existuje
     });
   });
 

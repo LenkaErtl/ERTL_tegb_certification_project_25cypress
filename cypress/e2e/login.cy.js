@@ -13,7 +13,6 @@ describe("TEGB – Přihlášení a přechod na dashboard", () => {
   };
 
   before(() => {
-    // registrace uživatele přes API (pokud už existuje, failOnStatusCode: false to ignoruje)
     cy.request({
       method: "POST",
       url: `${Cypress.env("apiUrl")}/tegb/register`,
@@ -31,22 +30,23 @@ describe("TEGB – Přihlášení a přechod na dashboard", () => {
   });
 
   it("Uživatel se úspěšně přihlásí a odhlásí", () => {
-    // zachytíme login request
     cy.intercept("POST", "**/tegb/login").as("loginRequest");
 
-    // použijeme page object, který už řeší obě varianty login formuláře
-    dashboardPage.login({ loginname: user.username, password: user.password });
+    cy.visit(Cypress.config("baseUrl"));
+    cy.get("form", { timeout: 15000 }).should("be.visible");
 
-    // počkáme na odpověď backendu a zalogujeme si ji
+    // Opravené selektory podle reálného DOMu
+    cy.get('input[name="username"]').clear().type(user.username);
+    cy.get('input[name="password"]').clear().type(user.password);
+    cy.get('button[type="submit"]').click();
+
     cy.wait("@loginRequest").then((interception) => {
       cy.log("Login status:", interception.response?.statusCode);
       cy.log("Login body:", JSON.stringify(interception.response?.body));
     });
 
-    // ověření dashboardu
-    dashboardPage.shouldBeOnDashboard();
-
-    // odhlášení
-    dashboardPage.logout().shouldBeLoggedOut();
+    cy.contains("Odhlásit se", { timeout: 20000 }).should("be.visible");
+    cy.get(".logout-link").click();
+    cy.contains("Přihlásit se", { timeout: 10000 }).should("be.visible");
   });
 });

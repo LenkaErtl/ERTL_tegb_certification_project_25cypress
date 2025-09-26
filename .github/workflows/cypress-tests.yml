@@ -35,6 +35,8 @@ jobs:
           CYPRESS_defaultCommandTimeout: 20000 # místo 10s → 20s
           CYPRESS_pageLoadTimeout: 60000 # načítání stránky až 60s
           CYPRESS_retries: 2 # flaky testy se zkusí znovu
+          CYPRESS_username: ${{ secrets.CYPRESS_username }}
+          CYPRESS_password: ${{ secrets.CYPRESS_password }}
 
       - name: Upload Cypress artifacts (screenshots & videos)
         if: failure()

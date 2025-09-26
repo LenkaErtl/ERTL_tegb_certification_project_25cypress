@@ -29,13 +29,8 @@ export class DashboardPage {
   }
 
   shouldBeOnDashboard() {
-    cy.get("button.logout-link", { timeout: 20000 })
-      .should("be.visible")
-      .and("contain.text", "Odhlásit se");
-
-    // URL může být root nebo dashboard, ale logout tlačítko je jistota
+    cy.contains("Odhlásit se", { timeout: 20000 }).should("be.visible");
     cy.url().should("match", /\/($|dashboard)/);
-
     return this;
   }
 

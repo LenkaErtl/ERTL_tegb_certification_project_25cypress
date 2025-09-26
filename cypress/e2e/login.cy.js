@@ -32,10 +32,19 @@ describe("TEGB – Přihlášení a přechod na dashboard", () => {
   });
 
   it("Uživatel se úspěšně přihlásí a odhlásí", () => {
-    dashboardPage
-      .login({ loginname: user.username, password: user.password })
-      .shouldBeOnDashboard()
-      .logout()
-      .shouldBeLoggedOut();
+    // zachytíme login request
+    cy.intercept("POST", "**/tegb/login").as("loginRequest");
+
+    // provedeme login přes page object
+    dashboardPage.login({ loginname: user.username, password: user.password });
+
+    // počkáme na odpověď backendu a zalogujeme si ji
+    cy.wait("@loginRequest").then((interception) => {
+      cy.log("Login status:", interception.response?.statusCode);
+      cy.log("Login body:", JSON.stringify(interception.response?.body));
+    });
+
+    // teprve pak ověřujeme dashboard a logout
+    dashboardPage.shouldBeOnDashboard().logout().shouldBeLoggedOut();
   });
 });

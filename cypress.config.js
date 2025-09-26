@@ -12,12 +12,18 @@ module.exports = defineConfig({
 
     // proměnné prostředí
     env: {
-      apiUrl: "https://tegb-backend-877a0b063d29.herokuapp.com", // backend API
-      frontendUrl: "https://tegb-frontend-88542200c6db.herokuapp.com", // frontend URL
+      apiUrl: "https://tegb-backend-877a0b063d29.herokuapp.com",
+      frontendUrl: "https://tegb-frontend-88542200c6db.herokuapp.com",
 
-      // testovací uživatel – pro API testy
-      username: "vikylucie@poesd.com",
+      // testovací uživatel
+      username: "vikylucie", // login jméno (pro přihlášení)
+      email: "vikylucie@poesd.com", // email (pro registraci)
       password: "Test5577",
+
+      tegb_firstName: "Viky",
+      tegb_lastName: "Lucie",
+      tegb_phone: "123456789",
+      tegb_age: 25,
     },
 
     // nastavení běhu

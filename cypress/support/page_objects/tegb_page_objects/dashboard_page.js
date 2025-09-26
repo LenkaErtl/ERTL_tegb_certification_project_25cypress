@@ -9,9 +9,22 @@ export class DashboardPage {
 
   login({ loginname, password }) {
     cy.visit(Cypress.config("baseUrl"));
-    cy.get('form input[type="text"]').clear().type(loginname);
-    cy.get('form input[type="password"]').clear().type(password);
-    cy.contains("Přihlásit se").click();
+
+    // nejprve zkusíme data-testid
+    cy.get("body").then(($body) => {
+      if ($body.find('[data-testid="login-username"]').length > 0) {
+        // varianta s data-testid
+        cy.get('[data-testid="login-username"]').clear().type(loginname);
+        cy.get('[data-testid="login-password"]').clear().type(password);
+        cy.get('[data-testid="login-submit"]').click();
+      } else {
+        // fallback: klasické inputy
+        cy.get('form input[type="text"]').clear().type(loginname);
+        cy.get('form input[type="password"]').clear().type(password);
+        cy.contains("Přihlásit se").click();
+      }
+    });
+
     return this;
   }
 

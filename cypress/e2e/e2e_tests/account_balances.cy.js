@@ -35,7 +35,7 @@ describe("Data Driven Test – kontrola účtů s různými částkami", () => {
                 expect(Number(account.balance)).to.eq(startBalance);
 
                 cy.log(
-                  `✅ ${user.loginname} → účet ${account.accountNumber} s částkou ${account.balance}`
+                  ` ${user.loginname} → účet ${account.accountNumber} s částkou ${account.balance}`
                 );
               });
             });
@@ -60,7 +60,7 @@ describe("Data Driven Test – kontrola účtů s různými částkami", () => {
               .then((res) => {
                 expect(res.status).to.eq(500);
                 cy.log(
-                  `⚠️ Backend správně odmítl částku ${startBalance} pro uživatele ${user.loginname}`
+                  ` Backend správně odmítl částku ${startBalance} pro uživatele ${user.loginname}`
                 );
               });
           });

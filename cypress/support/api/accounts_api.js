@@ -6,6 +6,7 @@ export class AccountsApi {
         method: "POST",
         url: `${Cypress.env("apiUrl")}/tegb/register`,
         body: { username: loginname, password, email },
+        failOnStatusCode: false, //  aby test nespadl, když už user existuje
       })
       .as("registerUser");
   }
@@ -32,6 +33,11 @@ export class AccountsApi {
         },
         body: { startBalance, type },
       })
+      .then((res) => {
+        //  Bonus kontrola – balance je číslo
+        expect(res.body.balance).to.be.a("number");
+        return res;
+      })
       .as("createAccount");
   }
 
@@ -45,7 +51,7 @@ export class AccountsApi {
           "Content-Type": "application/json",
         },
         body: { startBalance, type },
-        failOnStatusCode: false,
+        failOnStatusCode: false, 
       })
       .as("createAccountError");
   }

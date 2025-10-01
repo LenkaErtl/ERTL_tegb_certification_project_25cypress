@@ -1,17 +1,25 @@
-import { LoginApi } from "../../support/api/login_api.js";
+import { faker } from "@faker-js/faker";
+import { UserApi } from "../../support/api/user_api";
 
-describe("User API – Login only", () => {
-  const loginApi = new LoginApi();
-  const username = Cypress.env("tegb_username");
-  const password = Cypress.env("tegb_password");
+describe("User API – Register and Login", () => {
+  const userApi = new UserApi();
+  const user = {
+    username: faker.internet.username(),
+    password: faker.internet.password(),
+    email: faker.internet.email(),
+  };
 
-  it("should login existing user via API", () => {
-    cy.log(`Přihlašuji uživatele: ${username}`);
+  it("should register and login user via API", () => {
+    userApi.register(user).then((regRes) => {
+      expect(regRes.status).to.eq(201);
 
-    loginApi.login(username, password).then((response) => {
-      expect(response.status).to.eq(201);
-      expect(response.body).to.have.property("access_token");
-      expect(response.body.access_token).to.be.a("string");
+      userApi.login(user).then((loginRes) => {
+        expect(loginRes.status).to.eq(201);
+        const token = loginRes.body.access_token;
+        expect(token).to.be.a("string");
+
+        // Logout endpoint neexistuje – test končí zde
+      });
     });
   });
 });

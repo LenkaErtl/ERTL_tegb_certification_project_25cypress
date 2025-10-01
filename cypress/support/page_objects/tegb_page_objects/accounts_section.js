@@ -14,17 +14,17 @@ export class AccountsSection {
   }
 
   shouldShowAccountCard() {
-    this.accountCard.isVisible();
+    this.accountCard.get().should("be.visible");
     return this;
   }
 
   shouldShowBalance(amount) {
-    this.accountBalance.containsText(`${amount}`);
+    this.accountBalance.get().should("have.text", `${amount} CZK`);
     return this;
   }
 
   shouldShowCurrency(currency) {
-    this.accountCurrency.containsText(currency);
+    this.accountCurrency.get().should("have.text", currency);
     return this;
   }
 
@@ -35,16 +35,21 @@ export class AccountsSection {
   }
 
   createAccount({ startBalance, type }) {
-    this.addAccountButton.click();
-    this.startBalanceInput.should("be.visible").clear().type(startBalance);
-    this.typeSelect.select(type);
-    this.submitButton.click();
+    this.addAccountButton.get().click();
+    this.startBalanceInput
+      .get()
+      .should("exist")
+      .should("be.visible")
+      .clear()
+      .type(startBalance.toString());
+    this.typeSelect.get().select(type);
+    this.submitButton.get().click();
     return this;
   }
 
   verifyAccountCreated(expectedBalance) {
-    this.accountCard.should("be.visible");
-    this.accountBalance.should("contain", expectedBalance);
+    this.accountCard.get().should("be.visible");
+    this.accountBalance.get().should("have.text", `${expectedBalance} CZK`);
     return this;
   }
 }

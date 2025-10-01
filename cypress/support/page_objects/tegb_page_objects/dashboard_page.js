@@ -47,17 +47,24 @@ export class DashboardPage {
     this.accountNumberLabel = customElement(
       "[data-testid='label-account-number']"
     );
-
+    this.accountBalanceInput = customElement(
+      "[data-testid='start-balance-input']"
+    );
+    this.accountTypeSelect = customElement(
+      "[data-testid='account-type-select']"
+    );
+    this.submitAccountButton = customElement(
+      "[data-testid='submit-account-button']"
+    );
     this.accountBalanceLabel = customElement(
       "[data-testid='label-account-balance']"
     );
-
     this.accountTypeLabel = customElement("[data-testid='label-account-type']");
 
     // Účty – hodnoty
     this.accountNumberValue = customElement("[data-testid='account-number']");
     this.accountBalanceValue = customElement("[data-testid='account-balance']");
-    this.accountTypeValue = customElement("table tbody tr td:nth-child(3)");
+    this.accountTypeValue = customElement("[data-testid='account-type']");
     this.accountRow = customElement("[data-testid='account-row']");
 
     // Login inputy po odhlášení
@@ -100,11 +107,23 @@ export class DashboardPage {
     return this;
   }
 
+  createAccount({ startBalance, type }) {
+    this.addAccountButton.get().click();
+    this.accountBalanceInput
+      .get()
+      .should("exist")
+      .clear()
+      .type(startBalance.toString());
+    this.accountTypeSelect.get().select(type);
+    this.submitAccountButton.get().click();
+    return this;
+  }
+
   verifyAccountSummary({ accountNumber, balance, type }) {
     this.accountsTitle.get().should("be.visible");
-    this.accountNumberValue.get().should("contain", accountNumber);
-    this.accountBalanceValue.get().should("contain", balance);
-    this.accountTypeValue.get().should("contain", type);
+    this.accountNumberValue.get().should("have.text", accountNumber);
+    this.accountBalanceValue.get().should("have.text", `${balance} CZK`);
+    this.accountTypeValue.get().should("have.text", type);
     return this;
   }
 
@@ -112,7 +131,7 @@ export class DashboardPage {
     this.accountsTitle.get().should("be.visible");
     this.accountBalanceValue
       .get()
-      .should("contain", expectedBalance.toString());
+      .should("have.text", `${expectedBalance} CZK`);
     return this;
   }
 }

@@ -3,6 +3,7 @@ import { AccountsApi } from "../../support/api/accounts_api.js";
 import { LoginApi } from "../../support/api/login_api.js";
 import { LoginPage } from "../../support/page_objects/tegb_page_objects/login_page.js";
 import { DashboardPage } from "../../support/page_objects/tegb_page_objects/dashboard_page.js";
+import { AccountsSection } from "../../support/page_objects/tegb_page_objects/accounts_section.js";
 
 const balances = require("../../fixtures/account_balances.json");
 
@@ -20,7 +21,6 @@ describe("Data Driven Test – kontrola účtů s různými částkami", () => {
   balances.forEach((data, index) => {
     const { startBalance } = data;
     const user = generateUser();
-
     const isBugScenario = bugBalances.includes(startBalance);
 
     (isBugScenario ? it.skip : it)(
@@ -52,7 +52,6 @@ describe("Data Driven Test – kontrola účtů s různými částkami", () => {
         });
 
         // 4. Přihlášení přes frontend
-        // (přeskočeno, pokud startBalance odpovídá známému bugu)
         cy.intercept("GET", "**/tegb/accounts").as("getAccounts");
 
         loginPage
@@ -62,8 +61,20 @@ describe("Data Driven Test – kontrola účtů s různými částkami", () => {
           .submitLoginSuccess();
 
         // 5. Počkat na načtení účtů
-        // (přeskočeno, pokud test je skipnutý kvůli bug scénáři)
         cy.wait("@getAccounts");
+
+        // 6. Založení účtu přes UI
+        dashboardPage.addAccountButton.get().click();
+        const accountSection = new AccountsSection();
+        accountSection.startBalanceInput
+          .get()
+          .clear()
+          .type(startBalance.toString());
+        accountSection.typeSelect.get().select("Test");
+        accountSection.submitButton.get().click();
+
+        // 7. Ověření účtu na dashboardu
+        dashboardPage.verifyAccountBalance(startBalance);
       }
     );
   });

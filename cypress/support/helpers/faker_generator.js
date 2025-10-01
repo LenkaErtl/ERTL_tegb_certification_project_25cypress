@@ -4,7 +4,7 @@ export const generateUser = () => {
   return {
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
-    username: faker.internet.username(),
+    username: faker.internet.username() + faker.number.int({ max: 999_999 }),
     email: faker.internet.email(),
     phone: faker.phone.number("+420 ### ### ###"),
     age: faker.number.int({ min: 18, max: 99 }),

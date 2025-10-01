@@ -2,7 +2,7 @@ import { RegisterPage } from "../../support/page_objects/tegb_page_objects/regis
 import { LoginPage } from "../../support/page_objects/tegb_page_objects/login_page.js";
 import { DashboardPage } from "../../support/page_objects/tegb_page_objects/dashboard_page.js";
 import { ProfileSection } from "../../support/page_objects/tegb_page_objects/profile_section.js";
-import { AccountsPage } from "../../support/page_objects/tegb_page_objects/accounts_page.js";
+import { AccountsPage } from "../../support/page_objects/tegb_page_objects/accounts_section.js";
 import { fakerCS_CZ as faker } from "@faker-js/faker";
 
 const registerPage = new RegisterPage();

@@ -1,5 +1,5 @@
 import { customElement } from "../../helpers/custom_element.js";
-import { AccountsPage } from "./accounts_page.js";
+import { AccountsPage } from "./accounts_section.js";
 import { ProfileSection } from "./profile_section.js";
 
 export class DashboardPage {
@@ -51,7 +51,7 @@ export class DashboardPage {
     this.accountBalanceLabel = customElement(
       "[data-testid='label-account-balance']"
     );
-    
+
     this.accountTypeLabel = customElement("[data-testid='label-account-type']");
 
     // Účty – hodnoty

@@ -1,6 +1,6 @@
 import { customElement } from "../../helpers/custom_element.js";
 
-export class AccountsPage {
+export class AccountsSection {
   constructor() {
     this.accountCard = customElement('[data-testid="account_card"]');
     this.accountBalance = customElement('[data-testid="account_balance"]');

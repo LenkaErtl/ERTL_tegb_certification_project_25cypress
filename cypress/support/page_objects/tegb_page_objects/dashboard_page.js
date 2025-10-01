@@ -4,64 +4,115 @@ import { ProfileSection } from "./profile_section.js";
 
 export class DashboardPage {
   constructor() {
-    this.dashboardContent = customElement('[data-testid="dashboard-content"]');
-  }
+    this.dashboardContent = customElement("[data-testid='dashboard-content']");
+    this.logoutButton = customElement("[data-testid='logout-button']");
+    this.accountsLink = customElement("[data-testid='nav-accounts'] a");
+    this.profileLink = customElement(
+      "[data-testid='toggle-edit-profile-button']"
+    );
+    this.loader = customElement("[data-testid='loader']");
+    this.addAccountButton = customElement("[data-testid='add-account-button']");
+    this.loginMarker = customElement("[data-testid='username-input']");
 
-  login({ loginname, password }) {
-    cy.visit(Cypress.config("baseUrl"));
+    // Hlavička
+    this.logo = customElement("[data-testid='logo-img']");
+    this.appTitle = customElement("[data-testid='app-title']");
 
-    // nejprve zkusíme data-testid
-    cy.get("body").then(($body) => {
-      if ($body.find('[data-testid="login-username"]').length > 0) {
-        // varianta s data-testid
-        cy.get('[data-testid="login-username"]').clear().type(loginname);
-        cy.get('[data-testid="login-password"]').clear().type(password);
-        cy.get('[data-testid="login-submit"]').click();
-      } else {
-        // fallback: klasické inputy
-        cy.get('form input[type="text"]').clear().type(loginname);
-        cy.get('form input[type="password"]').clear().type(password);
-        cy.contains("Přihlásit se").click();
-      }
-    });
+    // Levé menu
+    this.navHome = customElement("[data-testid='nav-home']");
+    this.navAccounts = customElement("[data-testid='nav-accounts']");
+    this.navTransactions = customElement("[data-testid='nav-transactions']");
+    this.navSupport = customElement("[data-testid='nav-support']");
 
-    return this;
+    // Profilová sekce – labely
+    this.profileTitle = customElement("[data-testid='profile-details-title']");
+    this.nameLabel = customElement("[data-testid='name']");
+    this.surnameLabel = customElement("[data-testid='surname']");
+    this.emailLabel = customElement("[data-testid='email']");
+    this.editProfileButton = customElement(
+      "[data-testid='toggle-edit-profile-button']"
+    );
+
+    // Profilová sekce – hodnoty
+    this.profileNameValue = customElement("[data-testid='profile-name']");
+    this.profileSurnameValue = customElement("[data-testid='profile-surname']");
+    this.profileEmailValue = customElement("[data-testid='profile-email']");
+    this.profilePhoneValue = customElement("[data-testid='profile-phone']");
+
+    // Formulář profilu
+    this.profileForm = customElement("[data-testid='account-summary']");
+
+    // Účty – hlavičky
+    this.accountsTitle = customElement("[data-testid='accounts-title']");
+    this.accountNumberLabel = customElement(
+      "[data-testid='label-account-number']"
+    );
+
+    this.accountBalanceLabel = customElement(
+      "[data-testid='label-account-balance']"
+    );
+    
+    this.accountTypeLabel = customElement("[data-testid='label-account-type']");
+
+    // Účty – hodnoty
+    this.accountNumberValue = customElement("[data-testid='account-number']");
+    this.accountBalanceValue = customElement("[data-testid='account-balance']");
+    this.accountTypeValue = customElement("table tbody tr td:nth-child(3)");
+    this.accountRow = customElement("[data-testid='account-row']");
+
+    // Login inputy po odhlášení
+    this.passwordMarker = customElement("[data-testid='password-input']");
+    this.submitMarker = customElement("[data-testid='submit-button']");
   }
 
   shouldBeOnDashboard() {
-    cy.contains("Odhlásit se", { timeout: 20000 }).should("be.visible");
+    this.dashboardContent.get().should("be.visible");
     return this;
   }
 
   goToAccounts() {
-    cy.contains("Účty").click();
+    this.accountsLink.get().click();
     return new AccountsPage();
   }
 
   goToProfile() {
-    cy.contains("Profil").click();
+    this.profileLink.get().click();
     return new ProfileSection();
   }
 
   logout() {
-    cy.location("pathname").then((path) => {
-      if (path.includes("/dashboard")) {
-        cy.get("button.logout-link", { timeout: 15000 })
-          .should("be.visible")
-          .and("contain.text", "Odhlásit se")
-          .click();
-      } else {
-        cy.log(
-          "Nejsem na /dashboard – tlačítko Odhlásit se není dostupné, krok přeskočen"
-        );
-      }
-    });
+    this.logoutButton.get().should("be.visible").click();
     return this;
   }
 
   shouldBeLoggedOut() {
-    cy.url().should("eq", `${Cypress.config("baseUrl")}/`);
-    cy.contains("Přihlásit se", { timeout: 10000 }).should("be.visible");
+    this.loginMarker.get().should("be.visible");
+    return this;
+  }
+
+  clickEditProfileButton() {
+    this.editProfileButton.get().click();
+    return this;
+  }
+
+  profileFormIsVisible() {
+    this.profileForm.get().should("be.visible");
+    return this;
+  }
+
+  verifyAccountSummary({ accountNumber, balance, type }) {
+    this.accountsTitle.get().should("be.visible");
+    this.accountNumberValue.get().should("contain", accountNumber);
+    this.accountBalanceValue.get().should("contain", balance);
+    this.accountTypeValue.get().should("contain", type);
+    return this;
+  }
+
+  verifyAccountBalance(expectedBalance) {
+    this.accountsTitle.get().should("be.visible");
+    this.accountBalanceValue
+      .get()
+      .should("contain", expectedBalance.toString());
     return this;
   }
 }

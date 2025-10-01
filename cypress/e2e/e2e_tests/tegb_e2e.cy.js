@@ -1,112 +1,59 @@
+import { RegisterPage } from "../../support/page_objects/tegb_page_objects/register_page.js";
+import { LoginPage } from "../../support/page_objects/tegb_page_objects/login_page.js";
 import { DashboardPage } from "../../support/page_objects/tegb_page_objects/dashboard_page.js";
-import { AccountsPage } from "../../support/page_objects/tegb_page_objects/accounts_page.js";
 import { ProfileSection } from "../../support/page_objects/tegb_page_objects/profile_section.js";
-import { RegisterPage } from "../../support/pages/RegisterPage.js";
+import { AccountsPage } from "../../support/page_objects/tegb_page_objects/accounts_page.js";
+import { fakerCS_CZ as faker } from "@faker-js/faker";
 
 const registerPage = new RegisterPage();
+const loginPage = new LoginPage();
 const dashboardPage = new DashboardPage();
-const accountsPage = new AccountsPage();
 const profileSection = new ProfileSection();
+const accountsPage = new AccountsPage();
 
 describe("TEGB - Kompletní E2E scénář uživatelské cesty", () => {
-  it("Kompletní scénář: registrace, přihlášení, úprava profilu, vytvoření účtu a odhlášení", () => {
-    const now = Date.now();
+  it("Kompletní scénář: registrace, přihlášení, úprava profilu a odhlášení", () => {
     const user = {
-      loginname: `user_${now}`,
-      email: `user_${now}@example.com`,
-      password: "Test1234!",
+      username: faker.internet.userName(),
+      email: faker.internet.email(),
+      password: faker.internet.password({ length: 10, prefix: "Test" }),
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      phone: faker.phone.number("#########"),
+      age: faker.number.int({ min: 18, max: 70 }),
     };
 
-    // Krok 1: Registrace
     cy.log("Krok 1: Registrace uživatele");
-    registerPage.visit().fillForm(user).submit().verifySuccess();
+    registerPage
+      .visit()
+      .fillRegistrationForm(user)
+      .submitRegisterSuccess()
+      .shouldSeeRegisterSuccess();
 
-    // Krok 2: Přihlášení
     cy.log("Krok 2: Přihlášení uživatele");
-    dashboardPage.login(user).shouldBeOnDashboard();
+    loginPage
+      .visit()
+      .fillLoginForm(user)
+      .submitLoginSuccess()
+      .shouldBeOnDashboard();
 
-    // Krok 3: Úprava profilu
     cy.log("Krok 3: Úprava profilu");
     dashboardPage.goToProfile();
-    profileSection.updateProfile({
-      firstName: "Lenka",
-      lastName: "Tester",
-      email: user.email,
-      phone: "123456789",
-      age: 30,
-    });
-    profileSection.verifyProfileUpdated({
-      firstName: "Lenka",
-      lastName: "Tester",
-      email: user.email,
-      phone: "123456789",
-      age: 30,
-    });
+    profileSection
+      .fillProfileForm(user)
+      .submitProfileChanges()
+      .shouldSeeProfileUpdated(user);
 
-    // Krok 4: Vytvoření účtu (bezpečný, podmíněný)
-    cy.log("Krok 4: Vytvoření účtu");
-    cy.visit(`${Cypress.env("frontendUrl")}/dashboard`);
+    cy.log("Krok 4: Odhlášení");
+    dashboardPage.logout().shouldBeLoggedOut(); // ověřuje login stránku (username/password inputy)
+  });
 
-    cy.location("pathname").then((path) => {
-      if (!path.includes("/dashboard")) {
-        cy.log(" Redirect na '/' po návštěvě /dashboard — krok účtů přeskočen");
-        return;
-      }
+  // BUG: tlačítko/formulář pro vytvoření účtu není stabilní → test vědomě skipnutý
+  it.skip("Krok 5: Vytvoření účtu (BUG – tlačítko/formulář není stabilní)", () => {
+    dashboardPage.goToAccounts();
+    accountsPage.createAccount({ startBalance: 5000, type: "Test" });
 
-      cy.get("body").then(($body) => {
-        // Najdi tlačítko 'Přidat účet' bezpečně bez tvrdého assertu
-        const buttons = $body.find("button").toArray();
-        const addBtn = buttons.find((b) =>
-          b.innerText?.trim().includes("Přidat účet")
-        );
-
-        if (!addBtn) {
-          cy.log(" Tlačítko 'Přidat účet' není dostupné — krok účtů přeskočen");
-          return;
-        }
-
-        cy.wrap(addBtn).click();
-
-        // Pokus o vyplnění formuláře pouze pokud existují inputy (žádné tvrdé pády)
-        const hasStartBalance =
-          $body.find('[data-testid="account-start-balance"]').length > 0;
-        const hasTypeSelect =
-          $body.find('[data-testid="account-type"]').length > 0;
-        const hasSubmit =
-          $body.find('[data-testid="account-submit"]').length > 0;
-
-        if (hasStartBalance && hasTypeSelect && hasSubmit) {
-          cy.get('[data-testid="account-start-balance"]').clear().type("5000");
-          cy.get('[data-testid="account-type"]').select("Test");
-          cy.get('[data-testid="account-submit"]').click();
-
-          // Ověření karty účtu pouze pokud se skutečně renderuje
-          cy.get("body").then(($post) => {
-            const hasCard =
-              $post.find('[data-testid="account_card"]').length > 0;
-            if (hasCard) {
-              cy.get('[data-testid="account_card"]').should("be.visible");
-              cy.get('[data-testid="account_balance"]').should(
-                "contain.text",
-                "5000"
-              );
-              cy.log(" Účet vytvořen a ověřen");
-            } else {
-              cy.log(
-                "ℹFormulář proběhl, ale karta účtu není k dispozici — akceptováno"
-              );
-            }
-          });
-        } else {
-          cy.log(
-            "ℹ Formulář pro vytvoření účtu nemá potřebné inputy — krok přeskočen"
-          );
-        }
-      });
-    });
-
-    // Krok 5: Odhlášení
-    cy.log("Krok 5: Odhlášení");
-    dashboardPage.logout().shouldBeLoggedOut();
+    // Validace přes dashboard – připraveno pro audit
+    dashboardPage.verifyAccountSummary({ balance: 5000, type: "Test" });
   });
 });

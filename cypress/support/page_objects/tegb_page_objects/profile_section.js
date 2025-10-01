@@ -1,54 +1,65 @@
+import { customElement } from "../../helpers/custom_element.js";
+
 export class ProfileSection {
   constructor() {
-    this.firstNameInput = () => cy.get('[data-testid="chage-name-input"]');
-    this.lastNameInput = () => cy.get('[data-testid="chage-surname-input"]');
-    this.emailInput = () => cy.get('[data-testid="chage-email-input"]');
-    this.phoneInput = () => cy.get('[data-testid="chage-phone-input"]');
-    this.ageInput = () => cy.get('[data-testid="chage-age-input"]');
-    this.saveButton = () => cy.get('[data-testid="save-changes-button"]');
-    this.editButton = () =>
-      cy.get('[data-testid="toggle-edit-profile-button"]');
+    // samotný formulář
+    this.profileForm = customElement("[data-testid='edit-profile-form']");
+
+    // inputy
+    this.firstNameInput = customElement("[data-testid='chage-name-input']");
+    this.lastNameInput = customElement("[data-testid='chage-surname-input']");
+    this.emailInput = customElement("[data-testid='chage-email-input']");
+    this.phoneInput = customElement("[data-testid='chage-phone-input']");
+    this.ageInput = customElement("[data-testid='chage-age-input']");
+
+    // tlačítka
+    this.saveButton = customElement("[data-testid='save-changes-button']");
+    this.editButton = customElement(
+      '[data-testid="toggle-edit-profile-button"]'
+    );
+
+    // labely
+    this.nameLabel = customElement('[data-testid="name"]');
+    this.surnameLabel = customElement('[data-testid="surname"]');
+    this.emailLabel = customElement('[data-testid="email"]');
+    this.phoneLabel = customElement('[data-testid="phone"]');
+    this.ageLabel = customElement('[data-testid="age"]');
   }
 
   openEdit() {
-    this.editButton().click();
-    cy.get('[data-testid="chage-name-input"]').should("be.visible");
+    this.editButton.get().should("be.visible").click();
+    this.profileForm.get().should("be.visible");
+    this.firstNameInput.get().should("be.visible");
     return this;
   }
 
-  fillProfile({ firstName, lastName, email, phone, age }) {
-    this.firstNameInput().clear().type(firstName);
-    this.lastNameInput().clear().type(lastName);
-    this.emailInput().clear().type(email);
-    this.phoneInput().clear().type(phone);
-    this.ageInput().clear().type(age.toString());
+  // teď přijímá celý user objekt
+  fillProfileForm(user) {
+    const { firstName, lastName, email, phone, age } = user;
+    this.firstNameInput.get().clear().type(firstName);
+    this.lastNameInput.get().clear().type(lastName);
+    this.emailInput.get().clear().type(email);
+    this.phoneInput.get().clear().type(phone);
+    this.ageInput.get().clear().type(age.toString());
     return this;
   }
 
-  submit() {
+  submitProfileChanges() {
     cy.intercept("PATCH", "**/tegb/profile").as("saveProfileResponse");
-    this.saveButton().click();
-    cy.wait("@saveProfileResponse").then((response) => {
-      expect(response.response.statusCode).to.eq(200);
-    });
+    this.saveButton.get().click();
+    cy.wait("@saveProfileResponse")
+      .its("response.statusCode")
+      .should("eq", 200);
     return this;
   }
 
-  verifyProfile({ firstName, lastName, email, phone, age }) {
-    cy.get('[data-testid="name"]').should("contain", firstName);
-    cy.get('[data-testid="surname"]').should("contain", lastName);
-    cy.get('[data-testid="email"]').should("contain", email);
-    cy.get('[data-testid="phone"]').should("contain", phone);
-    cy.get('[data-testid="age"]').should("contain", age.toString());
+  shouldSeeProfileUpdated(user) {
+    const { firstName, lastName, email, phone, age } = user;
+    this.nameLabel.get().should("contain", firstName);
+    this.surnameLabel.get().should("contain", lastName);
+    this.emailLabel.get().should("contain", email);
+    this.phoneLabel.get().should("contain", phone);
+    this.ageLabel.get().should("contain", age);
     return this;
-  }
-
-  // aliasy pro E2E test
-  updateProfile(profileData) {
-    return this.openEdit().fillProfile(profileData).submit();
-  }
-
-  verifyProfileUpdated(profileData) {
-    return this.verifyProfile(profileData);
   }
 }

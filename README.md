@@ -13,8 +13,7 @@ Projekt je rozdělen do složek podle typu testů:
 - `api_tests` – přímé volání API (např. login, vytvoření účtu přes token)
 - `data_driven` – testy s různými částkami na účtu (validace zůstatku)
 - `atomic_dashboard` – atomické testy dashboardu (např. nadpis, přepínání sekcí)
-- `support/pages` – Page Objecty pro jednotlivé stránky (login, registrace)
-- `support/page_objects/tegb_page_objects` – komponenty dashboardu (profil, účty)
+- `support/page_objects` – Page Objecty pro jednotlivé stránky a dashboard komponenty (login, registrace, profil, účty)
 - `support/api` – API helpery pro login a účty
 - `support/helpers` – vlastní helpery (`customElement`, `faker_generator`)
 
@@ -24,8 +23,9 @@ Projekt je rozdělen do složek podle typu testů:
 - Přihlášení přes login stránku s validací dashboardu
 - Úprava profilu a ověření změn
 - Vytvoření účtu přes API a kontrola statusu
-- Zobrazení účtu na frontend (aktuálně nefunkční – test to loguje)
+- Validace vytvořeného účtu přes UI (AccountsPage)
 - Odhlášení a návrat na login
+- Skipování testů při známých chybách (např. nefunkční frontend)
 
 ## Použité technologie
 
@@ -39,11 +39,26 @@ Projekt je rozdělen do složek podle typu testů:
 
 ## Spuštění testů
 
-- Instalace závislostí: npm install
-- Spuštění Cypress GUI: npx cypress open
-- Spuštění konkrétního testu přes CLI: npx cypress run --spec "cypress/e2e/e2e_tests/tegb_e2e.cy.js"
+- Instalace závislostí: `npm install`
+- Spuštění Cypress GUI: `npx cypress open`
+- Spuštění konkrétního testu přes CLI:  
+  `npx cypress run --spec "cypress/e2e/e2e_tests/tegb_e2e.cy.js"`
 
-Testy jsou navrženy tak, aby byly spustitelné lokálně bez dalších úprav. URL aplikace je načítána z proměnné Cypress.env("frontendUrl"), která je definována v konfiguraci nebo v souboru cypress.env.json
+Testy jsou navrženy tak, aby byly spustitelné lokálně bez dalších úprav. URL aplikace je načítána z proměnné `Cypress.env("frontendUrl")`, která je definována v konfiguraci nebo v souboru `cypress.env.json`.
+
+## Poznámka k architektuře
+
+Projekt byl refaktorován tak, aby neobsahoval duplicitní Page Objecty. Všechny komponenty dashboardu jsou sjednoceny do dvou tříd: `ProfileSection` (úprava profilu) a `AccountsPage` (správa účtů).  
+Page Objecty jsou navrženy s jasnou odpovědností:
+
+- `LoginPage` – přihlášení uživatele
+- `RegisterPage` – registrace nového uživatele
+- `DashboardPage` – navigace mezi sekcemi
+- `ProfileSection` – editace a validace profilu
+- `AccountsPage` – vytvoření a validace účtu
+
+Lokátory jsou definovány jako `customElement` přímo v konstruktoru, v souladu s Page Object Patternem. Testy používají Fluent API styl bez přerušení toku.  
+Duplicitní třídy jako `ProfilePage`, `CheckDataPage` nebo `ProfileDetailsPage` byly odstraněny. Projekt je díky tomu udržitelný, čitelný a připravený na rozšíření.
 
 ## Autor
 

@@ -1,48 +1,52 @@
 export const customElement = (selector) => {
-  const element = {
-    isVisible() {
-      cy.get(selector).should("be.visible");
-      return this;
-    },
-    isNotVisible() {
-      cy.get(selector).should("not.be.visible");
-      return this;
-    },
-    haveText(text) {
-      cy.get(selector).should("have.text", text);
-      return this;
-    },
-    containsText(text) {
-      cy.get(selector).should("contain.text", text);
-      return this;
-    },
-    haveValue(value) {
-      cy.get(selector).should("have.value", value);
-      return this;
-    },
-    havePlaceholder(placeholder) {
-      cy.get(selector).should("have.attr", "placeholder", placeholder);
-      return this;
-    },
-    haveAttribute(attribute, value) {
-      cy.get(selector).should("have.attr", attribute, value);
-      return this;
-    },
-    click() {
-      cy.get(selector).click();
-      return this;
-    },
-    type(value) {
-      cy.get(selector).type(value);
-      return this;
-    },
-    clear() {
-      cy.get(selector).clear();
-      return this;
-    },
-    get() {
-      return cy.get(selector);
-    },
+  const get = () => cy.get(selector);
+
+  // Akce
+  const clear = () => get().clear();
+  const type = (value) => get().type(value);
+  const click = () => get().click();
+  const forceClick = () => get().click({ force: true });
+  const forceType = (value) => get().type(value, { force: true });
+
+  // Viditelnost & stav
+  const isVisible = () => get().should("be.visible");
+  const isNotVisible = () => get().should("not.be.visible");
+  const exist = () => get().should("exist");
+  const isEnabled = () => get().should("be.enabled");
+  const isDisabled = () => get().should("be.disabled");
+
+  // Obsah
+  const haveText = (text) => get().should("have.text", text);
+  const containText = (text) => get().should("contain.text", text);
+  const haveValue = (value) => get().should("have.value", value);
+  const containValue = (value) =>
+    get().should("have.value").and("contain", value);
+
+  // Atributy
+  const havePlaceholder = (placeholder) =>
+    get().should("have.attr", "placeholder", placeholder);
+  const haveAttribute = (attribute, value) =>
+    get().should("have.attr", attribute, value);
+  const haveClass = (className) => get().should("have.class", className);
+
+  return {
+    get,
+    clear,
+    type,
+    click,
+    forceClick,
+    forceType,
+    isVisible,
+    isNotVisible,
+    exist,
+    isEnabled,
+    isDisabled,
+    haveText,
+    containText,
+    haveValue,
+    containValue,
+    havePlaceholder,
+    haveAttribute,
+    haveClass,
   };
-  return element;
 };

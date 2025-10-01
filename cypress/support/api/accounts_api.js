@@ -1,25 +1,24 @@
+// AccountsApi – používá se v DDT a E2E scénářích, zahrnuje registraci a práci s účty
+
 export class AccountsApi {
   registerUser(user) {
-    const { loginname, password, email } = user;
-    return cy
-      .request({
-        method: "POST",
-        url: `${Cypress.env("apiUrl")}/tegb/register`,
-        body: { username: loginname, password, email },
-        failOnStatusCode: false, //  aby test nespadl, když už user existuje
-      })
-      .as("registerUser");
+    const { username, password, email } = user;
+    return cy.request({
+      method: "POST",
+      url: `${Cypress.env("apiUrl")}/tegb/register`,
+      body: { username, password, email },
+      failOnStatusCode: false,
+    });
   }
 
-  loginUser(user) {
-    const { loginname, password } = user;
-    return cy
-      .request({
-        method: "POST",
-        url: `${Cypress.env("apiUrl")}/tegb/login`,
-        body: { username: loginname, password },
-      })
-      .as("loginUser");
+  loginUser(user, failOnStatusCode = true) {
+    const { username, password } = user;
+    return cy.request({
+      method: "POST",
+      url: `${Cypress.env("apiUrl")}/tegb/login`,
+      body: { username, password },
+      failOnStatusCode,
+    });
   }
 
   createAccount(token, { startBalance, type }) {
@@ -31,14 +30,14 @@ export class AccountsApi {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+
         body: { startBalance, type },
       })
+
       .then((res) => {
-        //  Bonus kontrola – balance je číslo
         expect(res.body.balance).to.be.a("number");
         return res;
-      })
-      .as("createAccount");
+      });
   }
 
   createAccountExpectingError(token, { startBalance, type }) {
@@ -50,21 +49,25 @@ export class AccountsApi {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+
         body: { startBalance, type },
-        failOnStatusCode: false, 
+        failOnStatusCode: false,
       })
-      .as("createAccountError");
+
+      .then((res) => {
+        expect(res.status).to.eq(400); // nebo jiný očekávaný error kód
+        expect(res.body).to.have.property("error"); // volitelně: validace obsahu chyby
+        return res;
+      });
   }
 
   getAccounts(token) {
-    return cy
-      .request({
-        method: "GET",
-        url: `${Cypress.env("apiUrl")}/tegb/accounts`,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .as("getAccounts");
+    return cy.request({
+      method: "GET",
+      url: `${Cypress.env("apiUrl")}/tegb/accounts`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
   }
 }

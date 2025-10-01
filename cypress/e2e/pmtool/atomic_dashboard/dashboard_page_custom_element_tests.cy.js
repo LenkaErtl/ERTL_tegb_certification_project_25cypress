@@ -1,4 +1,3 @@
-import { DashboardPage } from "../../../support/page_objects/tegb_page_objects/dashboard_page.js";
 import { LoginPage } from "../../../support/page_objects/tegb_page_objects/login_page.js";
 
 describe("Dashboard – audit-ready testy", () => {

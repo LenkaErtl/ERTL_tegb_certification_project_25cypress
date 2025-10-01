@@ -1,5 +1,5 @@
 import { customElement } from "../../helpers/custom_element.js";
-import { AccountsPage } from "./accounts_section.js";
+import { AccountsSection } from "./accounts_section.js";
 import { ProfileSection } from "./profile_section.js";
 
 export class DashboardPage {
@@ -72,7 +72,7 @@ export class DashboardPage {
 
   goToAccounts() {
     this.accountsLink.get().click();
-    return new AccountsPage();
+    return new AccountsSection();
   }
 
   goToProfile() {
@@ -92,7 +92,7 @@ export class DashboardPage {
 
   clickEditProfileButton() {
     this.editProfileButton.get().click();
-    return this;
+    return new ProfileSection();
   }
 
   profileFormIsVisible() {

@@ -1,3 +1,5 @@
+// cypress/e2e/pmtool/atomic_dashboard/dashboard_page_custom_element_tests.cy.js
+
 import { LoginPage } from "../../../support/page_objects/tegb_page_objects/login_page.js";
 
 describe("Dashboard – audit-ready testy", () => {

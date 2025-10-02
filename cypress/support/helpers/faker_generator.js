@@ -1,3 +1,5 @@
+// cypress/support/helpers/faker_generator.js
+
 import { fakerCS_CZ as faker } from "@faker-js/faker";
 
 export const generateUser = () => {

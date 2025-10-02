@@ -1,81 +1,75 @@
-import { generateUser } from "../../support/helpers/faker_generator.js";
+// cypress/e2e/e2e_tests/account_balances.cy.js
+
+import { fakerCS_CZ as faker } from "@faker-js/faker";
+import { UserApi } from "../../support/api/user_api.js";
 import { AccountsApi } from "../../support/api/accounts_api.js";
-import { LoginApi } from "../../support/api/login_api.js";
 import { LoginPage } from "../../support/page_objects/tegb_page_objects/login_page.js";
-import { DashboardPage } from "../../support/page_objects/tegb_page_objects/dashboard_page.js";
 import { AccountsSection } from "../../support/page_objects/tegb_page_objects/accounts_section.js";
 
-const balances = require("../../fixtures/account_balances.json");
+const accountsData = require("../../fixtures/account_data.json");
+const bugBalances = new Set([-196000921, 298000123]);
 
-const accountsApi = new AccountsApi();
-const loginApi = new LoginApi();
-const loginPage = new LoginPage();
-const dashboardPage = new DashboardPage();
+describe("Data Driven Tests – kontrola účtů s různými zůstatky", () => {
+  let username, password, email, token;
+  const userApi = new UserApi();
+  const accountsApi = new AccountsApi();
+  const loginPage = new LoginPage();
+  const accountsPage = new AccountsSection();
 
-// Známé bugy backendu:
-// -196000921 → backend vrací 500 místo validace
-// 298000123  → backend vrací 500 místo validace
-const bugBalances = [-196000921, 298000123];
+  before(() => {
+    username = faker.internet.userName();
+    password = faker.internet.password();
+    email = faker.internet.email();
 
-describe("Data Driven Test – kontrola účtů s různými částkami", () => {
-  balances.forEach((data, index) => {
-    const { startBalance } = data;
-    const user = generateUser();
-    const isBugScenario = bugBalances.includes(startBalance);
+    // zaregistruj a přihlaš uživatele přes API
+    userApi.register(username, password, email).its("status").should("eq", 201);
+    userApi.login(username, password).then((res) => {
+      expect(res.status).to.eq(201);
+      token = res.body.access_token;
+    });
+  });
 
-    (isBugScenario ? it.skip : it)(
-      `Uživatel ${index + 1} → účet s částkou ${startBalance}${
-        isBugScenario ? " (BUG – test přeskočen)" : ""
-      }`,
-      () => {
-        // 1. Registrace uživatele přes API
-        accountsApi.registerUser(user).then((regRes) => {
-          expect(regRes.status).to.eq(201);
-        });
+  beforeEach(() => {
+    // zachyt profil i účty
+    cy.intercept("GET", "**/tegb/profile").as("getProfile");
+    cy.intercept("GET", "**/tegb/accounts").as("getAccounts");
 
-        // 2. Login přes API → získání tokenu
-        loginApi.loginUser(user).as("loginResponse");
+    // vždy začni na přihlašovací stránce
+    loginPage.visit();
+  });
 
-        cy.get("@loginResponse").then((loginRes) => {
-          expect(loginRes.status).to.eq(201);
-          const token = loginRes.body.access_token;
+  accountsData.forEach(({ startBalance, type, description }) => {
+    const label = description || startBalance;
+    const isBug = bugBalances.has(startBalance);
+    const testName = isBug
+      ? `DDT: účet se zůstatkem ${label} (BUG – přeskočeno)`
+      : `DDT: účet se zůstatkem ${label}`;
+    const testFn = isBug ? it.skip : it;
 
-          // 3. Vytvoření účtu přes API
-          accountsApi
-            .createAccount(token, { startBalance, type: "Test" })
-            .as("accountResponse");
-        });
-
-        cy.get("@accountResponse").then((accountRes) => {
-          expect(accountRes.status).to.eq(201);
-          expect(Number(accountRes.body.balance)).to.eq(startBalance);
-        });
-
-        // 4. Přihlášení přes frontend
-        cy.intercept("GET", "**/tegb/accounts").as("getAccounts");
-
-        loginPage
-          .visit()
-          .fillUsername(user.username)
-          .fillPassword(user.password)
-          .submitLoginSuccess();
-
-        // 5. Počkat na načtení účtů
-        cy.wait("@getAccounts");
-
-        // 6. Založení účtu přes UI
-        dashboardPage.addAccountButton.get().click();
-        const accountSection = new AccountsSection();
-        accountSection.startBalanceInput
-          .get()
-          .clear()
-          .type(startBalance.toString());
-        accountSection.typeSelect.get().select("Test");
-        accountSection.submitButton.get().click();
-
-        // 7. Ověření účtu na dashboardu
-        dashboardPage.verifyAccountBalance(startBalance);
+    testFn(testName, () => {
+      if (isBug) {
+        cy.log(`Přeskočeno kvůli známému bugu: ${label}`);
+        return;
       }
-    );
+      // nejdřív vytvoř účet přes API
+      accountsApi
+        .addAccount(startBalance, type, token)
+        .its("status")
+        .should("eq", 201);
+
+      // pak přihlaš UI a čekej na načtení dat
+      loginPage.typeUsername(username).typePassword(password).clickLogin();
+
+      cy.wait("@getProfile");
+      cy.wait("@getAccounts");
+
+      // ověř, že sekce „Účty“ byla vykreslena
+      cy.get("[data-testid='accounts-title']").should("be.visible");
+
+      // validuj poslední řádek tabulky
+      accountsPage
+        .shouldShowAccountTable()
+        .verifyAccountCreated({ balance: startBalance, type });
+    });
   });
 });

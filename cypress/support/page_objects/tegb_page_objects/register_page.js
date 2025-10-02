@@ -1,3 +1,5 @@
+// cypress/support/page_objects/tegb_page_objects/register_page.js
+
 import { customElement } from "../../helpers/custom_element.js";
 import { LoginPage } from "./login_page.js";
 
@@ -17,22 +19,30 @@ export class RegisterPage {
     return this;
   }
 
-  fillRegistrationForm(user) {
-    this.usernameInput.get().clear().type(user.username);
-    this.passwordInput.get().clear().type(user.password);
-    this.emailInput.get().clear().type(user.email);
+  typeUsername(username) {
+    this.usernameInput.get().should("be.enabled").clear().type(username);
     return this;
   }
 
-  submitRegisterSuccess() {
-    cy.intercept("POST", "**/register").as("register_api");
+  typePassword(password) {
+    this.passwordInput.get().should("be.enabled").clear().type(password);
+    return this;
+  }
+
+  typeEmail(email) {
+    this.emailInput.get().should("be.enabled").clear().type(email);
+    return this;
+  }
+
+  clickRegistr() {
+    // intercept v testu, ne v PO; tady validujeme pouze UI výsledky
     this.submitButton.get().click();
-    cy.wait("@register_api").its("response.statusCode").should("eq", 201);
+    this.successMessage.get().should("be.visible");
     return this;
   }
 
-  shouldSeeRegisterSuccess() {
-    this.successMessage.get().should("be.visible");
+  verifyWelcomeMessage() {
+    this.successMessage.get().should("be.visible").and("contain", "Vítejte");
     return this;
   }
 

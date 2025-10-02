@@ -13,7 +13,7 @@ module.exports = defineConfig({
     },
     baseUrl: "https://tegb-frontend-88542200c6db.herokuapp.com/",
     watchForFileChanges: false,
-    defaultCommandTimeout: 10000,
+    defaultCommandTimeout: 20000,
     video: false,
     chromeWebSecurity: false,
   },

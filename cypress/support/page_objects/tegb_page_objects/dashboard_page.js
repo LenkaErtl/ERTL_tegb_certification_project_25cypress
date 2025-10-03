@@ -10,6 +10,9 @@ export class DashboardPage {
     // základní obsah dashboardu
     this.dashboardContent = customElement("[data-testid='dashboard-content']");
 
+    // titulek aplikace
+    this.appTitle = customElement("span[data-testid='app-title']");
+
     // prvky sekce Účty
     this.accountsTitle = customElement("h2[data-testid='accounts-title']");
     this.accountNumberHeading = customElement(
@@ -24,6 +27,17 @@ export class DashboardPage {
     this.addAccountButton = customElement(
       "button[data-testid='add-account-button']"
     );
+
+    // prvky sekce Profil – podle skutečného DOMu
+    this.profileTitle = customElement(
+      "h2[data-testid='profile-details-title']"
+    );
+    this.nameLabel = customElement("div[data-testid='name'] strong");
+    this.surnameLabel = customElement("div[data-testid='surname'] strong");
+    this.emailLabel = customElement("div[data-testid='email'] strong");
+    this.phoneLabel = customElement("div[data-testid='phone'] strong");
+    this.ageLabel = customElement("div[data-testid='age'] strong");
+    this.editProfileButton = customElement("button.profile-action");
 
     // logout
     this.logoutButton = customElement("[data-testid='logout-button']");
@@ -45,6 +59,18 @@ export class DashboardPage {
     return this;
   }
 
+  // kliknutí na tlačítko Upravit profil
+  clickEditProfileButton() {
+    this.editProfileButton.get().should("be.visible").click();
+    return this;
+  }
+
+  // ověření, že se zobrazil formulář pro úpravu profilu
+  profileFormIsVisible() {
+    cy.get("form").should("be.visible"); // případně upřesni selektor formuláře
+    return this;
+  }
+
   // přechod do sekce Účty
   goToAccounts() {
     this.addAccountButton.get().click();
@@ -53,7 +79,6 @@ export class DashboardPage {
 
   // přechod do sekce Profil
   goToProfile() {
-    // pokud máš v DOMu jasný selektor pro profil, doplň ho sem
     return new ProfileSection();
   }
 

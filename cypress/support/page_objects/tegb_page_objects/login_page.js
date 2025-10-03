@@ -89,4 +89,8 @@ export class LoginPage {
     this.forgotPasswordButton.get().click();
     return this;
   }
+  shouldBeOnLogin() {
+    this.usernameInput.get().should("be.visible");
+    return this;
+  }
 }

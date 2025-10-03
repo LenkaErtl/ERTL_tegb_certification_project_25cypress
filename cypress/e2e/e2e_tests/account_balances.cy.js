@@ -5,6 +5,7 @@ import { UserApi } from "../../support/api/user_api.js";
 import { AccountsApi } from "../../support/api/accounts_api.js";
 import { LoginPage } from "../../support/page_objects/tegb_page_objects/login_page.js";
 import { AccountsSection } from "../../support/page_objects/tegb_page_objects/accounts_section.js";
+import { DashboardPage } from "../../support/page_objects/tegb_page_objects/dashboard_page.js";
 
 const accountsData = require("../../fixtures/account_data.json");
 const bugBalances = new Set([-196000921, 298000123]);
@@ -15,6 +16,7 @@ describe("Data Driven Tests – kontrola účtů s různými zůstatky", () => {
   const accountsApi = new AccountsApi();
   const loginPage = new LoginPage();
   const accountsPage = new AccountsSection();
+  const dashboardPage = new DashboardPage();
 
   before(() => {
     username = faker.internet.userName();
@@ -66,10 +68,13 @@ describe("Data Driven Tests – kontrola účtů s různými zůstatky", () => {
       // ověř, že sekce „Účty“ byla vykreslena
       cy.get("[data-testid='accounts-title']").should("be.visible");
 
-      // validuj poslední řádek tabulky
+      // ověřím sekci a tabulka
       accountsPage
         .shouldShowAccountTable()
         .verifyAccountCreated({ balance: startBalance, type });
+
+      // odhlášení a kontrola návratu na login
+      dashboardPage.clickLogout().shouldBeOnLogin();
     });
   });
 });

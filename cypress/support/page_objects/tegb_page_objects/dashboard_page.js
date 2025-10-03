@@ -7,14 +7,23 @@ import { ProfileSection } from "./profile_section.js";
 
 export class DashboardPage {
   constructor() {
-    // základní ověření, že jsme na dashboardu
+    // základní obsah dashboardu
     this.dashboardContent = customElement("[data-testid='dashboard-content']");
 
-    // hlavní navigace
-    this.navDomu = customElement("[data-testid='nav-domu']");
-    this.navUcty = customElement("[data-testid='nav-ucty']");
-    this.navTransakce = customElement("[data-testid='nav-transakce']");
-    this.navPodpora = customElement("[data-testid='nav-podpora']");
+    // prvky sekce Účty
+    this.accountsTitle = customElement("h2[data-testid='accounts-title']");
+    this.accountNumberHeading = customElement(
+      "th[data-testid='account-number-heading']"
+    );
+    this.accountBalanceHeading = customElement(
+      "th[data-testid='account-balance-heading']"
+    );
+    this.accountTypeHeading = customElement(
+      "th[data-testid='account-type-heading']"
+    );
+    this.addAccountButton = customElement(
+      "button[data-testid='add-account-button']"
+    );
 
     // logout
     this.logoutButton = customElement("[data-testid='logout-button']");
@@ -26,21 +35,31 @@ export class DashboardPage {
     return this;
   }
 
-  // přechod do sekce Účty – klikne na boční menu
+  // sanity checky – ověření, že sekce Účty je viditelná
+  accountsSectionIsVisible() {
+    this.accountsTitle.get().should("contain.text", "Účty");
+    this.accountNumberHeading.get().should("be.visible");
+    this.accountBalanceHeading.get().should("be.visible");
+    this.accountTypeHeading.get().should("be.visible");
+    this.addAccountButton.get().should("be.visible");
+    return this;
+  }
+
+  // přechod do sekce Účty
   goToAccounts() {
-    this.navUcty.get().click();
+    this.addAccountButton.get().click();
     return new AccountsSection();
   }
 
   // přechod do sekce Profil
   goToProfile() {
-    this.navDomu.get().click();
+    // pokud máš v DOMu jasný selektor pro profil, doplň ho sem
     return new ProfileSection();
   }
 
   // odhlášení – klikne na tlačítko a vrátí LoginPage
   clickLogout() {
-    cy.contains("button", "Odhlásit se").click();
+    this.logoutButton.get().click();
     return new LoginPage();
   }
 }

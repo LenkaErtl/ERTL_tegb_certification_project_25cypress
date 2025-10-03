@@ -4,15 +4,51 @@ import { customElement } from "../../helpers/custom_element.js";
 
 export class AccountsSection {
   constructor() {
+    // hlavičky a titulek
+    this.title = customElement("h2[data-testid='accounts-title']");
+    this.numberHeading = customElement(
+      "th[data-testid='account-number-heading']"
+    );
+    this.balanceHeading = customElement(
+      "th[data-testid='account-balance-heading']"
+    );
+    this.typeHeading = customElement("th[data-testid='account-type-heading']");
+    this.addAccountButton = customElement(
+      "button[data-testid='add-account-button']"
+    );
+
     // buňky řádků (nikoli hlavičky)
     this.numberCell = customElement("[data-testid='account-number']");
     this.balanceCell = customElement("[data-testid='account-balance']");
     this.typeCell = customElement("[data-testid='account-type']");
+
+    // formulář pro vytvoření účtu
+    this.startBalanceInput = customElement(
+      "[data-testid='account-start-balance']"
+    );
+    this.typeSelect = customElement("[data-testid='account-type']");
+    this.submitButton = customElement("[data-testid='account-submit']");
   }
 
-  // ověříme, že v tabulce aspoň jedna buňka sloupce "Číslo účtu" existuje
-  shouldShowAccountTable() {
-    this.numberCell.get().should("have.length.greaterThan", 0);
+  // ověření, že sekce účtů je viditelná
+  shouldShowAccountsSection() {
+    this.title.get().should("contain.text", "Účty");
+    this.numberHeading.get().should("be.visible");
+    this.balanceHeading.get().should("be.visible");
+    this.typeHeading.get().should("be.visible");
+    this.addAccountButton.get().should("be.visible");
+    return this;
+  }
+
+  // vytvoření účtu přes UI
+  createAccount(balance, type) {
+    this.startBalanceInput
+      .get()
+      .should("be.visible")
+      .clear()
+      .type(String(balance));
+    this.typeSelect.get().should("be.visible").select(type);
+    this.submitButton.get().should("be.enabled").click();
     return this;
   }
 

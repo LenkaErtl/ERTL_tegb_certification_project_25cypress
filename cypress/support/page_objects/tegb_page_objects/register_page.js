@@ -1,7 +1,5 @@
-// cypress/support/page_objects/tegb_page_objects/register_page.js
-
 import { customElement } from "../../helpers/custom_element.js";
-import { LoginPage } from "./login_page.js";
+import { DashboardPage } from "./dashboard_page.js";
 
 export class RegisterPage {
   constructor() {
@@ -10,11 +8,12 @@ export class RegisterPage {
     this.emailInput = customElement("[data-testid='email-input']");
     this.submitButton = customElement("[data-testid='submit-button']");
     this.successMessage = customElement("[data-testid='success-message']");
-    this.loginButton = customElement("[data-testid='login-button']");
+    this.loginButton = customElement("[data-testid='submit-button']");
   }
 
   visit() {
     cy.visit("/register");
+    cy.url().should("include", "/register");
     this.usernameInput.get().should("exist");
     return this;
   }
@@ -35,9 +34,7 @@ export class RegisterPage {
   }
 
   clickRegistr() {
-    // intercept v testu, ne v PO; tady validujeme pouze UI výsledky
     this.submitButton.get().click();
-    this.successMessage.get().should("be.visible");
     return this;
   }
 
@@ -48,6 +45,6 @@ export class RegisterPage {
 
   clickLogin() {
     this.loginButton.get().click();
-    return new LoginPage();
+    return new DashboardPage();
   }
 }

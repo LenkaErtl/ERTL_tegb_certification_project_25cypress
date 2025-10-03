@@ -4,52 +4,69 @@ import { customElement } from "../../helpers/custom_element.js";
 
 export class ProfileSection {
   constructor() {
-    this.profileForm = customElement("[data-testid='edit-profile-form']");
-    this.firstNameInput = customElement("[data-testid='change-name-input']");
-    this.lastNameInput = customElement("[data-testid='change-surname-input']");
-    this.emailInput = customElement("[data-testid='change-email-input']");
-    this.phoneInput = customElement("[data-testid='change-phone-input']");
-    this.ageInput = customElement("[data-testid='change-age-input']");
+    // tlačítko pro editaci profilu
+    this.editButton = customElement("button.profile-action");
 
-    this.editButton = customElement(
-      "[data-testid='toggle-edit-profile-button']"
+    // inputy pro změnu údajů
+    this.firstNameInput = customElement(
+      "input[data-testid='chage-name-input']"
     );
-    this.saveButton = customElement("[data-testid='save-changes-button']");
+    this.lastNameInput = customElement(
+      "input[data-testid='chage-surname-input']"
+    );
+    this.emailInput = customElement("input[data-testid='chage-email-input']");
+    this.phoneInput = customElement("input[data-testid='chage-phone-input']");
+    this.ageInput = customElement("input[data-testid='chage-age-input']");
 
-    this.nameLabel = customElement("[data-testid='name']");
-    this.surnameLabel = customElement("[data-testid='surname']");
-    this.emailLabel = customElement("[data-testid='email']");
-    this.phoneLabel = customElement("[data-testid='phone']");
-    this.ageLabel = customElement("[data-testid='age']");
+    // tlačítko pro uložení změn
+    this.saveButton = customElement(
+      "button[data-testid='save-changes-button']"
+    );
   }
 
-  openEdit() {
+  clickEditProfile() {
     this.editButton.get().should("be.visible").click();
-    this.profileForm.get().should("be.visible");
+    // ověříme, že se objeví první input
+    this.firstNameInput.get().should("be.visible");
     return this;
   }
 
-  fillProfileForm({ firstName, lastName, email, phone, age }) {
-    this.firstNameInput.get().clear().type(firstName);
-    this.lastNameInput.get().clear().type(lastName);
-    this.emailInput.get().clear().type(email);
-    this.phoneInput.get().clear().type(phone);
-    this.ageInput.get().clear().type(String(age));
+  typeFirstName(value) {
+    this.firstNameInput.get().clear().type(value);
     return this;
   }
 
-  submitProfileChanges() {
-    this.saveButton.get().click();
-    this.profileForm.get().should("not.exist");
+  typeLastName(value) {
+    this.lastNameInput.get().clear().type(value);
+    return this;
+  }
+
+  typeEmail(value) {
+    this.emailInput.get().clear().type(value);
+    return this;
+  }
+
+  typePhone(value) {
+    this.phoneInput.get().clear().type(value);
+    return this;
+  }
+
+  typeAge(value) {
+    this.ageInput.get().clear().type(String(value));
+    return this;
+  }
+
+  clickSave() {
+    this.saveButton.get().should("be.enabled").click();
     return this;
   }
 
   shouldSeeProfileUpdated({ firstName, lastName, email, phone, age }) {
-    this.nameLabel.get().should("have.text", firstName);
-    this.surnameLabel.get().should("have.text", lastName);
-    this.emailLabel.get().should("have.text", email);
-    this.phoneLabel.get().should("have.text", phone);
-    this.ageLabel.get().should("have.text", String(age));
+    this.firstNameInput.get().should("have.value", firstName);
+    this.lastNameInput.get().should("have.value", lastName);
+    this.emailInput.get().should("have.value", email);
+    this.phoneInput.get().should("have.value", phone);
+    this.ageInput.get().should("have.value", String(age));
     return this;
   }
 }

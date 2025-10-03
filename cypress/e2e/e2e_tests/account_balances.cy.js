@@ -70,7 +70,7 @@ describe("Data Driven Tests – kontrola účtů s různými zůstatky", () => {
 
       // ověřím sekci a tabulka
       accountsPage
-        .shouldShowAccountTable()
+        .shouldShowAccountsSection()
         .verifyAccountCreated({ balance: startBalance, type });
 
       // odhlášení a kontrola návratu na login

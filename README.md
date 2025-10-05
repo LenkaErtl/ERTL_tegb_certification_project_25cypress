@@ -2,7 +2,8 @@
 
 ## TEG#B Cypress Certification Project
 
-Tento projekt obsahuje automatizované testy pro bankovní aplikaci TEG#B jako součást certifikačního zadání. Testy jsou psány v Cypressu a pokrývají E2E scénáře, API testy, data-driven testy a atomické testy dashboardu.  
+Tento projekt obsahuje automatizované testy pro bankovní aplikaci TEG#B jako součást certifikačního zadání. Testy jsou psány v Cypressu a pokrývají E2E scénáře, API testy, data‑driven testy a atomické testy dashboardu.
+
 Používá se Page Object Pattern, Fluent API styl, intercepty pro čekání na backend a dynamická data generovaná pomocí knihovny Faker.
 
 ## Struktura projektu
@@ -12,29 +13,48 @@ Projekt je rozdělen do složek podle typu testů:
 - `e2e_tests` – komplexní scénáře (registrace, přihlášení, úprava profilu, vytvoření účtu, odhlášení)
 - `api_tests` – přímé volání API (např. login, vytvoření účtu přes token)
 - `data_driven` – testy s různými částkami na účtu (validace zůstatku)
-- `atomic_dashboard` – atomické testy dashboardu (např. nadpis, přepínání sekcí)
-- `support/page_objects` – Page Objecty pro jednotlivé stránky a dashboard komponenty (login, registrace, profil, účty)
-- `support/api` – API helpery pro login a účty
-- `support/helpers` – vlastní helpery (`customElement`, `faker_generator`)
+- `atomic_dashboard` – atomické testy dashboardu (nadpisy, labely, tlačítka, funkčnost odhlášení)
+- `support/page_objects` – Page Objecty pro jednotlivé stránky a komponenty (LoginPage, RegisterPage, DashboardPage, ProfileSection, AccountsSection)
+- `support/api` – API helpery (UserApi, AccountsApi)
+- `support/helpers` – vlastní helpery (customElement, faker_generator)
+- `fixtures` - testovací data JSON (např. account_data.json)
 
 ## Pokryté scénáře
 
+E2E
+
 - Registrace uživatele přes UI
-- Přihlášení přes login stránku s validací dashboardu
+- Přihlášení a validace dashboardu
 - Úprava profilu a ověření změn
-- Vytvoření účtu přes API a kontrola statusu
-- Validace vytvořeného účtu přes UI (AccountsPage)
-- Odhlášení a návrat na login
-- Skipování testů při známých chybách (např. nefunkční frontend)
+- Odhlášení a návrat na login stránku
+
+API
+
+- Registrace a login přes API
+- Ověření status kódů a získání tokenu
+- Vytvoření účtu přes API
+
+Data Driven Tests
+
+- Vytvoření účtů s různými zůstatky (0 Kč, kladné, záporné, extrémní hodnoty)
+- Validace účtů přes UI
+- Skipnutí testů u známých bugů s vysvětlením
+
+Atomické testy
+
+- Hlavička aplikace (logo, titulek, odhlášení)
+- Profilová sekce (nadpis, labely, tlačítko Upravit profil, formulář)
+- Sekce Účty (nadpis, tlačítko Přidat účet)
+- Funkčnost odhlášení
 
 ## Použité technologie
 
 - Cypress
 - Page Object Pattern
-- Fluent API styl
+- Fluent API
 - `cy.intercept()` pro čekání na API
-- `data-testid` selektory
-- Dynamická data přes Faker
+- `data-testid` selektory pro stabilní identifikaci prvků
+- Faker pro generování dynamických dat
 - Kombinace UI a API testování
 
 ## Spuštění testů
@@ -48,16 +68,14 @@ Testy jsou navrženy tak, aby byly spustitelné lokálně bez dalších úprav. 
 
 ## Poznámka k architektuře
 
-Projekt byl refaktorován tak, aby neobsahoval duplicitní Page Objecty. Všechny komponenty dashboardu jsou sjednoceny do dvou tříd: `ProfileSection` (úprava profilu) a `AccountsPage` (správa účtů).  
-Page Objecty jsou navrženy s jasnou odpovědností:
-
 - `LoginPage` – přihlášení uživatele
 - `RegisterPage` – registrace nového uživatele
-- `DashboardPage` – navigace mezi sekcemi
+- `DashboardPage` – navigace a základní prvky dashboardu
 - `ProfileSection` – editace a validace profilu
-- `AccountsPage` – vytvoření a validace účtu
+- `AccountsSection` – vytvoření a validace účtu
 
-Lokátory jsou definovány jako `customElement` přímo v konstruktoru, v souladu s Page Object Patternem. Testy používají Fluent API styl bez přerušení toku.  
+Lokátory jsou definovány jako `customElement` přímo v konstruktoru, v souladu s Page Object Patternem. Testy využívají Fluent API styl, který zajišťuje čitelný a plynulý tok kroků bez zbytečného přerušování.
+
 Duplicitní třídy jako `ProfilePage`, `CheckDataPage` nebo `ProfileDetailsPage` byly odstraněny. Projekt je díky tomu udržitelný, čitelný a připravený na rozšíření.
 
 ## Autor

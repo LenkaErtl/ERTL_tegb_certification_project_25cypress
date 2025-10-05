@@ -1,0 +1,27 @@
+[
+  {
+    "startBalance": 0.0,
+    "type": "běžný účet",
+    "note": "Testovací účet bez zůstatku"
+  },
+  {
+    "startBalance": 200000.52,
+    "type": "firemní účet",
+    "note": "Zůstatek pro účet s vysokou aktivitou"
+  },
+  {
+    "startBalance": -12345.0,
+    "type": "rodinný účet",
+    "note": "Negativní zůstatek – test chybového stavu"
+  },
+  {
+    "startBalance": -196000921.0,
+    "type": "dluhový účet",
+    "note": "Extrémní záporný stav – validace limitů"
+  },
+  {
+    "startBalance": 298000123.0,
+    "type": "spořicí účet",
+    "note": "Vysoký zůstatek – test formátování a výpočtů"
+  }
+]

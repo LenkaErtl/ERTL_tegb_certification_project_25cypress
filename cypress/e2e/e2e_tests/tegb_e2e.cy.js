@@ -1,112 +1,53 @@
-import { DashboardPage } from "../../support/page_objects/tegb_page_objects/dashboard_page.js";
-import { AccountsPage } from "../../support/page_objects/tegb_page_objects/accounts_page.js";
-import { ProfileSection } from "../../support/page_objects/tegb_page_objects/profile_section.js";
-import { RegisterPage } from "../../support/pages/RegisterPage.js";
+// cypress/e2e/e2e_tests/tegb_e2e.cy.js
 
-const registerPage = new RegisterPage();
-const dashboardPage = new DashboardPage();
-const accountsPage = new AccountsPage();
-const profileSection = new ProfileSection();
+import { LoginPage } from "../../support/page_objects/tegb_page_objects/login_page.js";
+import { fakerCS_CZ as faker } from "@faker-js/faker";
 
-describe("TEGB - Kompletní E2E scénář uživatelské cesty", () => {
-  it("Kompletní scénář: registrace, přihlášení, úprava profilu, vytvoření účtu a odhlášení", () => {
-    const now = Date.now();
-    const user = {
-      loginname: `user_${now}`,
-      email: `user_${now}@example.com`,
-      password: "Test1234!",
-    };
+describe("TEGB – Kompletní E2E scénář uživatelské cesty", () => {
+  const username = faker.internet.username();
+  const password = faker.internet.password();
+  const email = faker.internet.email();
+  const firstName = "Lenka";
+  const lastName = "Tester";
+  const phone = "123456789";
+  const age = 30;
 
-    // Krok 1: Registrace
-    cy.log("Krok 1: Registrace uživatele");
-    registerPage.visit().fillForm(user).submit().verifySuccess();
+  it("Registrace, přihlášení, kontrola dashboardu, úprava profilu, odhlášení", () => {
+    cy.intercept("GET", "**/tegb/profile").as("getProfile");
+    cy.intercept("GET", "**/tegb/accounts").as("getAccounts");
 
-    // Krok 2: Přihlášení
-    cy.log("Krok 2: Přihlášení uživatele");
-    dashboardPage.login(user).shouldBeOnDashboard();
+    // Registrace a přihlášení
+    const dashboardPage = new LoginPage()
+      .visit()
+      .clickRegister()
+      .typeUsername(username)
+      .typePassword(password)
+      .typeEmail(email)
+      .clickRegistr()
+      .verifyWelcomeMessage()
+      .typeUsername(username)
+      .typePassword(password)
+      .clickLogin();
 
-    // Krok 3: Úprava profilu
-    cy.log("Krok 3: Úprava profilu");
-    dashboardPage.goToProfile();
-    profileSection.updateProfile({
-      firstName: "Lenka",
-      lastName: "Tester",
-      email: user.email,
-      phone: "123456789",
-      age: 30,
-    });
-    profileSection.verifyProfileUpdated({
-      firstName: "Lenka",
-      lastName: "Tester",
-      email: user.email,
-      phone: "123456789",
-      age: 30,
-    });
+    cy.wait("@getProfile");
+    cy.wait("@getAccounts");
 
-    // Krok 4: Vytvoření účtu (bezpečný, podmíněný)
-    cy.log("Krok 4: Vytvoření účtu");
-    cy.visit(`${Cypress.env("frontendUrl")}/dashboard`);
+    // Kontrola dashboardu (viditelné prvky)
+    dashboardPage.shouldBeOnDashboard().accountsSectionIsVisible();
 
-    cy.location("pathname").then((path) => {
-      if (!path.includes("/dashboard")) {
-        cy.log(" Redirect na '/' po návštěvě /dashboard — krok účtů přeskočen");
-        return;
-      }
+    // Úprava profilu
+    dashboardPage
+      .goToProfile()
+      .clickEditProfile()
+      .typeFirstName(firstName)
+      .typeLastName(lastName)
+      .typeEmail(email)
+      .typePhone(phone)
+      .typeAge(age)
+      .clickSave()
+      .shouldSeeProfileUpdated({ firstName, lastName, email, phone, age });
 
-      cy.get("body").then(($body) => {
-        // Najdi tlačítko 'Přidat účet' bezpečně bez tvrdého assertu
-        const buttons = $body.find("button").toArray();
-        const addBtn = buttons.find((b) =>
-          b.innerText?.trim().includes("Přidat účet")
-        );
-
-        if (!addBtn) {
-          cy.log(" Tlačítko 'Přidat účet' není dostupné — krok účtů přeskočen");
-          return;
-        }
-
-        cy.wrap(addBtn).click();
-
-        // Pokus o vyplnění formuláře pouze pokud existují inputy (žádné tvrdé pády)
-        const hasStartBalance =
-          $body.find('[data-testid="account-start-balance"]').length > 0;
-        const hasTypeSelect =
-          $body.find('[data-testid="account-type"]').length > 0;
-        const hasSubmit =
-          $body.find('[data-testid="account-submit"]').length > 0;
-
-        if (hasStartBalance && hasTypeSelect && hasSubmit) {
-          cy.get('[data-testid="account-start-balance"]').clear().type("5000");
-          cy.get('[data-testid="account-type"]').select("Test");
-          cy.get('[data-testid="account-submit"]').click();
-
-          // Ověření karty účtu pouze pokud se skutečně renderuje
-          cy.get("body").then(($post) => {
-            const hasCard =
-              $post.find('[data-testid="account_card"]').length > 0;
-            if (hasCard) {
-              cy.get('[data-testid="account_card"]').should("be.visible");
-              cy.get('[data-testid="account_balance"]').should(
-                "contain.text",
-                "5000"
-              );
-              cy.log(" Účet vytvořen a ověřen");
-            } else {
-              cy.log(
-                "ℹFormulář proběhl, ale karta účtu není k dispozici — akceptováno"
-              );
-            }
-          });
-        } else {
-          cy.log(
-            "ℹ Formulář pro vytvoření účtu nemá potřebné inputy — krok přeskočen"
-          );
-        }
-      });
-    });
-
-    // Krok 5: Odhlášení
-    cy.log("Krok 5: Odhlášení");
-    dashboardPage.logout().shouldBeLoggedOut();
+    // Odhlášení
+    dashboardPage.clickLogout().shouldBeOnLogin();
   });
 });

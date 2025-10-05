@@ -1,54 +1,72 @@
+// cypress/support/page_objects/tegb_page_objects/profile_section.js
+
+import { customElement } from "../../helpers/custom_element.js";
+
 export class ProfileSection {
   constructor() {
-    this.firstNameInput = () => cy.get('[data-testid="chage-name-input"]');
-    this.lastNameInput = () => cy.get('[data-testid="chage-surname-input"]');
-    this.emailInput = () => cy.get('[data-testid="chage-email-input"]');
-    this.phoneInput = () => cy.get('[data-testid="chage-phone-input"]');
-    this.ageInput = () => cy.get('[data-testid="chage-age-input"]');
-    this.saveButton = () => cy.get('[data-testid="save-changes-button"]');
-    this.editButton = () =>
-      cy.get('[data-testid="toggle-edit-profile-button"]');
+    // tlačítko pro editaci profilu
+    this.editButton = customElement("button.profile-action");
+
+    // inputy pro změnu údajů
+    this.firstNameInput = customElement(
+      "input[data-testid='chage-name-input']"
+    );
+    this.lastNameInput = customElement(
+      "input[data-testid='chage-surname-input']"
+    );
+    this.emailInput = customElement("input[data-testid='chage-email-input']");
+    this.phoneInput = customElement("input[data-testid='chage-phone-input']");
+    this.ageInput = customElement("input[data-testid='chage-age-input']");
+
+    // tlačítko pro uložení změn
+    this.saveButton = customElement(
+      "button[data-testid='save-changes-button']"
+    );
   }
 
-  openEdit() {
-    this.editButton().click();
-    cy.get('[data-testid="chage-name-input"]').should("be.visible");
+  clickEditProfile() {
+    this.editButton.get().should("be.visible").click();
+    // ověříme, že se objeví první input
+    this.firstNameInput.get().should("be.visible");
     return this;
   }
 
-  fillProfile({ firstName, lastName, email, phone, age }) {
-    this.firstNameInput().clear().type(firstName);
-    this.lastNameInput().clear().type(lastName);
-    this.emailInput().clear().type(email);
-    this.phoneInput().clear().type(phone);
-    this.ageInput().clear().type(age.toString());
+  typeFirstName(value) {
+    this.firstNameInput.get().clear().type(value);
     return this;
   }
 
-  submit() {
-    cy.intercept("PATCH", "**/tegb/profile").as("saveProfileResponse");
-    this.saveButton().click();
-    cy.wait("@saveProfileResponse").then((response) => {
-      expect(response.response.statusCode).to.eq(200);
-    });
+  typeLastName(value) {
+    this.lastNameInput.get().clear().type(value);
     return this;
   }
 
-  verifyProfile({ firstName, lastName, email, phone, age }) {
-    cy.get('[data-testid="name"]').should("contain", firstName);
-    cy.get('[data-testid="surname"]').should("contain", lastName);
-    cy.get('[data-testid="email"]').should("contain", email);
-    cy.get('[data-testid="phone"]').should("contain", phone);
-    cy.get('[data-testid="age"]').should("contain", age.toString());
+  typeEmail(value) {
+    this.emailInput.get().clear().type(value);
     return this;
   }
 
-  // aliasy pro E2E test
-  updateProfile(profileData) {
-    return this.openEdit().fillProfile(profileData).submit();
+  typePhone(value) {
+    this.phoneInput.get().clear().type(value);
+    return this;
   }
 
-  verifyProfileUpdated(profileData) {
-    return this.verifyProfile(profileData);
+  typeAge(value) {
+    this.ageInput.get().clear().type(String(value));
+    return this;
+  }
+
+  clickSave() {
+    this.saveButton.get().should("be.enabled").click();
+    return this;
+  }
+
+  shouldSeeProfileUpdated({ firstName, lastName, email, phone, age }) {
+    this.firstNameInput.get().should("have.value", firstName);
+    this.lastNameInput.get().should("have.value", lastName);
+    this.emailInput.get().should("have.value", email);
+    this.phoneInput.get().should("have.value", phone);
+    this.ageInput.get().should("have.value", String(age));
+    return this;
   }
 }

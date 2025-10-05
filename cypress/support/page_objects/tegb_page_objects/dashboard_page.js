@@ -1,67 +1,90 @@
+// cypress/support/page_objects/tegb_page_objects/dashboard_page.js
+
 import { customElement } from "../../helpers/custom_element.js";
-import { AccountsPage } from "./accounts_page.js";
+import { LoginPage } from "./login_page.js";
+import { AccountsSection } from "./accounts_section.js";
 import { ProfileSection } from "./profile_section.js";
 
 export class DashboardPage {
   constructor() {
-    this.dashboardContent = customElement('[data-testid="dashboard-content"]');
+    // základní obsah dashboardu
+    this.dashboardContent = customElement("[data-testid='dashboard-content']");
+
+    // titulek aplikace
+    this.appTitle = customElement("span[data-testid='app-title']");
+
+    // prvky sekce Účty
+    this.accountsTitle = customElement("h2[data-testid='accounts-title']");
+    this.accountNumberHeading = customElement(
+      "th[data-testid='account-number-heading']"
+    );
+    this.accountBalanceHeading = customElement(
+      "th[data-testid='account-balance-heading']"
+    );
+    this.accountTypeHeading = customElement(
+      "th[data-testid='account-type-heading']"
+    );
+    this.addAccountButton = customElement(
+      "button[data-testid='add-account-button']"
+    );
+
+    // prvky sekce Profil – podle skutečného DOMu
+    this.profileTitle = customElement(
+      "h2[data-testid='profile-details-title']"
+    );
+    this.nameLabel = customElement("div[data-testid='name'] strong");
+    this.surnameLabel = customElement("div[data-testid='surname'] strong");
+    this.emailLabel = customElement("div[data-testid='email'] strong");
+    this.phoneLabel = customElement("div[data-testid='phone'] strong");
+    this.ageLabel = customElement("div[data-testid='age'] strong");
+    this.editProfileButton = customElement("button.profile-action");
+
+    // logout
+    this.logoutButton = customElement("[data-testid='logout-button']");
   }
 
-  login({ loginname, password }) {
-    cy.visit(Cypress.config("baseUrl"));
-
-    // nejprve zkusíme data-testid
-    cy.get("body").then(($body) => {
-      if ($body.find('[data-testid="login-username"]').length > 0) {
-        // varianta s data-testid
-        cy.get('[data-testid="login-username"]').clear().type(loginname);
-        cy.get('[data-testid="login-password"]').clear().type(password);
-        cy.get('[data-testid="login-submit"]').click();
-      } else {
-        // fallback: klasické inputy
-        cy.get('form input[type="text"]').clear().type(loginname);
-        cy.get('form input[type="password"]').clear().type(password);
-        cy.contains("Přihlásit se").click();
-      }
-    });
-
-    return this;
-  }
-
+  // ověří, že jsme na dashboardu
   shouldBeOnDashboard() {
-    cy.contains("Odhlásit se", { timeout: 20000 }).should("be.visible");
+    this.dashboardContent.get().should("be.visible");
     return this;
   }
 
-  goToAccounts() {
-    cy.contains("Účty").click();
-    return new AccountsPage();
+  // sanity checky – ověření, že sekce Účty je viditelná
+  accountsSectionIsVisible() {
+    this.accountsTitle.get().should("have.text", "Účty");
+    this.accountNumberHeading.get().should("be.visible");
+    this.accountBalanceHeading.get().should("be.visible");
+    this.accountTypeHeading.get().should("be.visible");
+    this.addAccountButton.get().should("be.visible");
+    return this;
   }
 
+  // kliknutí na tlačítko Upravit profil
+  clickEditProfileButton() {
+    this.editProfileButton.get().should("be.visible").click();
+    return this;
+  }
+
+  // ověření, že se zobrazil formulář pro úpravu profilu
+  profileFormIsVisible() {
+    cy.get("form").should("be.visible");
+    return this;
+  }
+
+  // přechod do sekce Účty
+  goToAccounts() {
+    this.addAccountButton.get().click();
+    return new AccountsSection();
+  }
+
+  // přechod do sekce Profil
   goToProfile() {
-    cy.contains("Profil").click();
     return new ProfileSection();
   }
 
-  logout() {
-    cy.location("pathname").then((path) => {
-      if (path.includes("/dashboard")) {
-        cy.get("button.logout-link", { timeout: 15000 })
-          .should("be.visible")
-          .and("contain.text", "Odhlásit se")
-          .click();
-      } else {
-        cy.log(
-          "Nejsem na /dashboard – tlačítko Odhlásit se není dostupné, krok přeskočen"
-        );
-      }
-    });
-    return this;
-  }
-
-  shouldBeLoggedOut() {
-    cy.url().should("eq", `${Cypress.config("baseUrl")}/`);
-    cy.contains("Přihlásit se", { timeout: 10000 }).should("be.visible");
-    return this;
+  // odhlášení – klikne na tlačítko a vrátí LoginPage
+  clickLogout() {
+    this.logoutButton.get().click();
+    return new LoginPage();
   }
 }

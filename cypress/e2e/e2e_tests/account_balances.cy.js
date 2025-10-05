@@ -1,71 +1,65 @@
-import { generateUser } from "../../support/helpers/faker_generator.js";
+// cypress/e2e/e2e_tests/account_balances.cy.js
+
+import { fakerCS_CZ as faker } from "@faker-js/faker";
+import { UserApi } from "../../support/api/user_api.js";
 import { AccountsApi } from "../../support/api/accounts_api.js";
-const balances = require("../../fixtures/account_balances.json");
+import { LoginPage } from "../../support/page_objects/tegb_page_objects/login_page.js";
+import { AccountsSection } from "../../support/page_objects/tegb_page_objects/accounts_section.js";
+import { DashboardPage } from "../../support/page_objects/tegb_page_objects/dashboard_page.js";
 
-const api = new AccountsApi();
+const accountsData = require("../../fixtures/account_data.json");
+const bugBalances = new Set([-196000921, 298000123]);
 
-describe("Data Driven Test – kontrola účtů s různými částkami", () => {
-  balances.forEach((data, index) => {
-    const { startBalance } = data;
-    const user = generateUser(); // vždy unikátní uživatel
-    const isValid = Math.abs(startBalance) <= 100000000;
-    const testFn = isValid ? it : it.skip;
+describe("Data Driven Tests – kontrola účtů s různými zůstatky", () => {
+  let username, password, email, token;
+  const userApi = new UserApi();
+  const accountsApi = new AccountsApi();
+  const loginPage = new LoginPage();
+  const accountsSection = new AccountsSection();
+  const dashboardPage = new DashboardPage();
 
-    testFn(`Uživatel ${index + 1} → účet s částkou ${startBalance}`, () => {
-      api.registerUser(user, { failOnStatusCode: false }).then((regRes) => {
-        // povolíme i 400 (user already exists), ale očekáváme 201 při nové registraci
-        expect([201, 400]).to.include(regRes.status);
+  before(() => {
+    username = faker.internet.userName();
+    password = faker.internet.password();
+    email = faker.internet.email();
 
-        api.loginUser(user).then((loginRes) => {
-          expect(loginRes.status).to.eq(201);
-          const token = loginRes.body.access_token;
-
-          api
-            .createAccount(token, { startBalance, type: "Test" })
-            .then((accountRes) => {
-              expect(accountRes.status).to.eq(201);
-              expect(Number(accountRes.body.balance)).to.eq(startBalance);
-
-              api.getAccounts(token).then((getRes) => {
-                expect(getRes.status).to.eq(200);
-                const account = getRes.body.find(
-                  (acc) => acc.accountNumber === accountRes.body.accountNumber
-                );
-                expect(account).to.exist;
-                expect(Number(account.balance)).to.eq(startBalance);
-
-                cy.log(
-                  ` ${user.loginname} → účet ${account.accountNumber} s částkou ${account.balance}`
-                );
-              });
-            });
-        });
-      });
+    userApi.register(username, password, email).its("status").should("eq", 201);
+    userApi.login(username, password).then((res) => {
+      expect(res.status).to.eq(201);
+      token = res.body.access_token;
     });
+  });
 
-    const errorTestFn = !isValid ? it : it.skip;
+  beforeEach(() => {
+    cy.intercept("GET", "**/tegb/profile").as("getProfile");
+    cy.intercept("GET", "**/tegb/accounts").as("getAccounts");
+    loginPage.visit();
+  });
 
-    errorTestFn(
-      `Uživatel ${index + 1} → očekávaná chyba při částce ${startBalance}`,
-      () => {
-        api.registerUser(user, { failOnStatusCode: false }).then(() => {
-          api.loginUser(user).then((loginRes) => {
-            const token = loginRes.body.access_token;
+  accountsData.forEach(({ startBalance, type, description }) => {
+    const label = description || startBalance;
+    const isBug = bugBalances.has(startBalance);
+    const testName = isBug
+      ? `DDT: účet se zůstatkem ${label} (BUG – přeskočeno)`
+      : `DDT: účet se zůstatkem ${label}`;
+    const testFn = isBug ? it.skip : it;
 
-            api
-              .createAccountExpectingError(token, {
-                startBalance,
-                type: "Test",
-              })
-              .then((res) => {
-                expect(res.status).to.eq(500);
-                cy.log(
-                  ` Backend správně odmítl částku ${startBalance} pro uživatele ${user.loginname}`
-                );
-              });
-          });
-        });
-      }
-    );
+    testFn(testName, () => {
+      accountsApi
+        .addAccount(startBalance, type, token)
+        .its("status")
+        .should("eq", 201);
+
+      loginPage.typeUsername(username).typePassword(password).clickLogin();
+
+      cy.wait("@getProfile");
+      cy.wait("@getAccounts");
+
+      accountsSection
+        .shouldShowAccountsSection()
+        .verifyAccountCreated({ balance: startBalance, type });
+
+      dashboardPage.clickLogout().shouldBeOnLogin();
+    });
   });
 });

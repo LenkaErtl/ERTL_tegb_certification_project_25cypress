@@ -22,16 +22,4 @@ export class UserApi {
       body: { username, password },
     });
   }
-
-  addAccount(startBalance, type, token) {
-    return cy.request({
-      method: "POST",
-      url: `${this.apiUrl}/tegb/accounts/create`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: { startBalance, type },
-    });
-  }
 }

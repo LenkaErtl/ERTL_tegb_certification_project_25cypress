@@ -1,3 +1,5 @@
+// cypress/support/page_objects/tegb_page_objects/register_page.js
+
 import { customElement } from "../../helpers/custom_element.js";
 import { DashboardPage } from "./dashboard_page.js";
 
@@ -39,7 +41,13 @@ export class RegisterPage {
   }
 
   verifyWelcomeMessage() {
-    this.successMessage.get().should("be.visible").and("contain", "Vítejte");
+    this.successMessage
+      .get()
+      .should("be.visible")
+      .invoke("text")
+      .then((txt) => {
+        expect(txt.trim()).to.include("Vítejte");
+      });
     return this;
   }
 

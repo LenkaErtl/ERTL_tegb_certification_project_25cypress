@@ -13,7 +13,7 @@ describe("Dashboard – atomické testy", { testIsolation: false }, () => {
   let email;
 
   before(() => {
-    // vygenerujeme si unikátní uživatele
+    // vygenerujeme si unikátního uživatele
     username = faker.internet.userName();
     password = faker.internet.password();
     email = faker.internet.email();
@@ -40,8 +40,8 @@ describe("Dashboard – atomické testy", { testIsolation: false }, () => {
   });
 
   context("Základní prvky", () => {
-    it("Titulek aplikace je viditelný a obsahuje text", () => {
-      dashboard.appTitle.get().should("contain.text", "TEG#B Dashboard");
+    it("Titulek aplikace je viditelný a má správný text", () => {
+      dashboard.appTitle.get().should("have.text", "TEG#B Dashboard");
     });
 
     it("Tlačítko Odhlásit je viditelné", () => {
@@ -55,23 +55,23 @@ describe("Dashboard – atomické testy", { testIsolation: false }, () => {
     });
 
     it("Label Jméno je viditelný a má správný text", () => {
-      dashboard.nameLabel.get().should("contain.text", "Jméno");
+      dashboard.nameLabel.get().should("have.text", "Jméno:");
     });
 
     it("Label Příjmení je viditelný a má správný text", () => {
-      dashboard.surnameLabel.get().should("contain.text", "Příjmení");
+      dashboard.surnameLabel.get().should("have.text", "Příjmení:");
     });
 
     it("Label Email je viditelný a má správný text", () => {
-      dashboard.emailLabel.get().should("contain.text", "Email");
+      dashboard.emailLabel.get().should("have.text", "Email:");
     });
 
     it("Label Telefon je viditelný a má správný text", () => {
-      dashboard.phoneLabel.get().should("contain.text", "Telefon");
+      dashboard.phoneLabel.get().should("have.text", "Telefon:");
     });
 
     it("Label Věk je viditelný a má správný text", () => {
-      dashboard.ageLabel.get().should("contain.text", "Věk");
+      dashboard.ageLabel.get().should("have.text", "Věk:");
     });
 
     it("Tlačítko Upravit profil je viditelné", () => {
@@ -97,10 +97,7 @@ describe("Dashboard – atomické testy", { testIsolation: false }, () => {
   context("Odhlášení", () => {
     it("Kliknutí na Odhlásit přesměruje na login stránku", () => {
       dashboard.clickLogout();
-      cy.url().should(
-        "eq",
-        "https://tegb-frontend-88542200c6db.herokuapp.com/"
-      );
+      cy.url().should("eq", Cypress.env("frontendUrl") + "/");
       cy.get("input[name='username']").should("be.visible");
       cy.get("input[name='password']").should("be.visible");
       cy.get("button[type='submit']").should("be.visible");

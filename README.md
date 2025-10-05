@@ -47,6 +47,14 @@ Atomické testy
 - Sekce Účty (nadpis, tlačítko Přidat účet)
 - Funkčnost odhlášení
 
+## Safety testy (kontrola data-testid)
+
+Pro zvýšení stability testů jsem přidala tzv. _safety checky_, které ověřují,
+že v DOMu existují všechny očekávané `data-testid` atributy používané v Page Objectech
+(např. `chage-name-input`, `save-changes-button`).
+
+- Testy se nachází ve složce `cypress/e2e/safety/`
+
 ## Použité technologie
 
 - Cypress

@@ -32,7 +32,7 @@ export class AccountsSection {
 
   // ověření, že sekce účtů je viditelná
   shouldShowAccountsSection() {
-    this.title.get().should("contain.text", "Účty");
+    this.title.get().should("have.text", "Účty");
     this.numberHeading.get().should("be.visible");
     this.balanceHeading.get().should("be.visible");
     this.typeHeading.get().should("be.visible");

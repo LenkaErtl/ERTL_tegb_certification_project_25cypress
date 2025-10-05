@@ -22,7 +22,7 @@ export const customElement = (selector) => {
       get().should("exist");
       return this;
     },
-    haveText(txt) {
+    shouldHaveText(txt) {
       get().should("have.text", txt);
       return this;
     },

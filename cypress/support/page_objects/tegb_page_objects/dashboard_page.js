@@ -51,7 +51,7 @@ export class DashboardPage {
 
   // sanity checky – ověření, že sekce Účty je viditelná
   accountsSectionIsVisible() {
-    this.accountsTitle.get().should("contain.text", "Účty");
+    this.accountsTitle.get().should("have.text", "Účty");
     this.accountNumberHeading.get().should("be.visible");
     this.accountBalanceHeading.get().should("be.visible");
     this.accountTypeHeading.get().should("be.visible");
@@ -67,7 +67,7 @@ export class DashboardPage {
 
   // ověření, že se zobrazil formulář pro úpravu profilu
   profileFormIsVisible() {
-    cy.get("form").should("be.visible"); // případně upřesni selektor formuláře
+    cy.get("form").should("be.visible");
     return this;
   }
 

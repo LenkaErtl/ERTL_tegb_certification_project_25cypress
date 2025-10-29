@@ -1,56 +1,29 @@
-import { LoginApi } from "../../support/api/login_api";
-import { AccountsApi } from "../../support/api/accounts_api";
+// cypress/e2e/api/login_api.cy.js
 
-const loginApi = new LoginApi();
-const accountsApi = new AccountsApi();
+import { fakerCS_CZ as faker } from "@faker-js/faker";
+import { UserApi } from "../../support/api/user_api";
 
-describe("API Test – Přihlášení a vytvoření účtu", () => {
-  const credentials = {
-    username: "apitestuser",
-    email: "apitestuser@example.com",
-    password: "Test5577",
-  };
+describe("User API – registrace a přihlášení", () => {
+  let username;
+  let password;
+  let email;
 
-  before(() => {
-    // Registrace uživatele – pokud už existuje, nevadí
-    cy.request({
-      method: "POST",
-      url: `${Cypress.env("apiUrl")}/tegb/register`,
-      body: {
-        username: credentials.username,
-        email: credentials.email,
-        password: credentials.password,
-      },
-      failOnStatusCode: false, // když už existuje, ignorujeme chybu
-    });
-  });
+  it("zaregistruje a přihlásí uživatele přes API", () => {
+    username = faker.internet.username();
+    password = faker.internet.password();
+    email = faker.internet.email();
 
-  it("1. Přihlášení přes API – status 201 a token, vytvoření účtu", () => {
-    // Login
-    loginApi
-      .login(credentials.username, credentials.password)
-      .as("loginResponse");
+    const userApi = new UserApi();
 
-    cy.get("@loginResponse").then((loginRes) => {
-      expect(loginRes.status).to.eq(201);
-      expect(loginRes.body)
-        .to.have.property("access_token")
-        .and.to.be.a("string");
+    // registrace
+    userApi.register(username, password, email).then((regRes) => {
+      expect(regRes.status).to.eq(201);
 
-      const token = loginRes.body.access_token;
-
-      // Vytvoření účtu
-      accountsApi
-        .createAccount(token, { startBalance: 10000, type: "Test" })
-        .as("accountResponse");
-    });
-
-    // Kontrola účtu
-    cy.get("@accountResponse").then((accountRes) => {
-      expect(accountRes.status).to.eq(201);
-      expect(accountRes.body).to.have.property("accountNumber");
-      expect(accountRes.body.balance).to.eq(10000);
-      cy.log("Účet vytvořen:", accountRes.body.accountNumber);
+      // login
+      userApi.login(username, password).then((loginRes) => {
+        expect(loginRes.status).to.eq(201);
+        expect(loginRes.body.access_token).to.exist;
+      });
     });
   });
 });

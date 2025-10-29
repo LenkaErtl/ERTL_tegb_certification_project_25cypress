@@ -1,48 +1,30 @@
+// cypress/support/helpers/custom_element.js
+
 export const customElement = (selector) => {
-  const element = {
-    isVisible() {
-      cy.get(selector).should("be.visible");
-      return this;
-    },
-    isNotVisible() {
-      cy.get(selector).should("not.be.visible");
-      return this;
-    },
-    haveText(text) {
-      cy.get(selector).should("have.text", text);
-      return this;
-    },
-    containsText(text) {
-      cy.get(selector).should("contain.text", text);
-      return this;
-    },
-    haveValue(value) {
-      cy.get(selector).should("have.value", value);
-      return this;
-    },
-    havePlaceholder(placeholder) {
-      cy.get(selector).should("have.attr", "placeholder", placeholder);
-      return this;
-    },
-    haveAttribute(attribute, value) {
-      cy.get(selector).should("have.attr", attribute, value);
-      return this;
-    },
+  const get = () => cy.get(selector);
+
+  return {
+    get,
+
     click() {
-      cy.get(selector).click();
+      get().click();
       return this;
     },
-    type(value) {
-      cy.get(selector).type(value);
+    type(val) {
+      get().clear().type(val);
       return this;
     },
-    clear() {
-      cy.get(selector).clear();
+    shouldBeVisible() {
+      get().should("be.visible");
       return this;
     },
-    get() {
-      return cy.get(selector);
+    shouldExist() {
+      get().should("exist");
+      return this;
+    },
+    shouldHaveText(txt) {
+      get().should("have.text", txt);
+      return this;
     },
   };
-  return element;
 };

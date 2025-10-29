@@ -1,49 +1,106 @@
-describe("Atomické testy na Dashboard", () => {
-  // Před každým testem se přihlásíme a dostaneme na dashboard
-  beforeEach(() => {
-    const username = Cypress.env("username");
-    const password = Cypress.env("password");
+// cypress/e2e/pmtool/atomic_dashboard/dashboard_page_custom_element_tests.cy.js
 
-    cy.visit(Cypress.config("baseUrl"));
-    cy.get("form input[type='text']").clear().type(username);
-    cy.get("form input[type='password']").clear().type(password);
-    cy.contains("Přihlásit se").click();
-    cy.url().should("include", "/dashboard");
+import { faker } from "@faker-js/faker";
+import { LoginPage } from "../../../support/page_objects/tegb_page_objects/login_page.js";
+import { DashboardPage } from "../../../support/page_objects/tegb_page_objects/dashboard_page.js";
+
+describe("Dashboard – atomické testy", { testIsolation: false }, () => {
+  const loginPage = new LoginPage();
+  const dashboard = new DashboardPage();
+
+  let username;
+  let password;
+  let email;
+
+  before(() => {
+    // vygenerujeme si unikátního uživatele
+    username = faker.internet.userName();
+    password = faker.internet.password();
+    email = faker.internet.email();
+
+    // vyčištění session
+    cy.clearAllCookies();
+    cy.clearAllLocalStorage();
+    cy.clearAllSessionStorage();
+
+    // registrace a login
+    new LoginPage()
+      .visit()
+      .clickRegister()
+      .typeUsername(username)
+      .typePassword(password)
+      .typeEmail(email)
+      .clickRegistr()
+      .verifyWelcomeMessage()
+      .typeUsername(username)
+      .typePassword(password)
+      .clickLogin();
+
+    dashboard.shouldBeOnDashboard();
   });
 
-  it("1. Kontrola viditelnosti a textu v hlavičce", () => {
-    cy.get("[data-testid='logo-img']").should("be.visible");
-    cy.get(".app-title").should("contain.text", "TEG#B Dashboard");
-    cy.get("button.logout-link")
-      .should("be.visible")
-      .and("contain.text", "Odhlásit se");
+  context("Základní prvky", () => {
+    it("Titulek aplikace je viditelný a má správný text", () => {
+      dashboard.appTitle.get().should("have.text", "TEG#B Dashboard");
+    });
+
+    it("Tlačítko Odhlásit je viditelné", () => {
+      dashboard.logoutButton.get().should("be.visible");
+    });
   });
 
-  it("2. Kontrola levého menu a jeho položek", () => {
-    cy.get("aside.dashboard-sidebar").should("be.visible");
-    cy.contains("aside.dashboard-sidebar li", "Domů").should("be.visible");
-    cy.contains("aside.dashboard-sidebar li", "Účty").should("be.visible");
-    cy.contains("aside.dashboard-sidebar li", "Transakce").should("be.visible");
-    cy.contains("aside.dashboard-sidebar li", "Podpora").should("be.visible");
+  context("Profilová sekce", () => {
+    it("Nadpis Profilu je viditelný", () => {
+      dashboard.profileTitle.get().should("be.visible");
+    });
+
+    it("Label Jméno je viditelný a má správný text", () => {
+      dashboard.nameLabel.get().should("have.text", "Jméno:");
+    });
+
+    it("Label Příjmení je viditelný a má správný text", () => {
+      dashboard.surnameLabel.get().should("have.text", "Příjmení:");
+    });
+
+    it("Label Email je viditelný a má správný text", () => {
+      dashboard.emailLabel.get().should("have.text", "Email:");
+    });
+
+    it("Label Telefon je viditelný a má správný text", () => {
+      dashboard.phoneLabel.get().should("have.text", "Telefon:");
+    });
+
+    it("Label Věk je viditelný a má správný text", () => {
+      dashboard.ageLabel.get().should("have.text", "Věk:");
+    });
+
+    it("Tlačítko Upravit profil je viditelné", () => {
+      dashboard.editProfileButton.get().should("be.visible");
+    });
+
+    it("Kliknutí na Upravit profil zobrazí formulář", () => {
+      dashboard.clickEditProfileButton();
+      dashboard.profileFormIsVisible();
+    });
   });
 
-  it("3. Kontrola obsahu dashboardu - sekce Profil a Účty", () => {
-    // Profil
-    cy.get("[data-testid='profile-details-title']").should("be.visible");
-    cy.contains("Upravit profil").should("be.visible");
+  context("Účty", () => {
+    it("Nadpis sekce Účty je viditelný", () => {
+      dashboard.accountsTitle.get().should("be.visible");
+    });
 
-    // Účty
-    cy.get(".accounts-header h2").should("be.visible");
-    cy.contains("Přidat účet").should("be.visible");
+    it("Tlačítko Přidat účet je viditelné", () => {
+      dashboard.addAccountButton.get().should("be.visible");
+    });
   });
 
-  it("4. Kontrola funkčnosti odhlášení (click)", () => {
-    cy.get("button.logout-link").should("be.visible").click();
-    cy.url().should("eq", `${Cypress.config("baseUrl")}/`);
-    cy.contains("Přihlásit se").should("exist");
-  });
-
-  it.skip("5. Další test, který je přeskočen z důvodu neimplementované funkcionality", () => {
-    cy.log("Tento test je přeskočen, protože funkcionalita není k dispozici.");
+  context("Odhlášení", () => {
+    it("Kliknutí na Odhlásit přesměruje na login stránku", () => {
+      dashboard.clickLogout();
+      cy.url().should("eq", Cypress.env("frontendUrl") + "/");
+      cy.get("input[name='username']").should("be.visible");
+      cy.get("input[name='password']").should("be.visible");
+      cy.get("button[type='submit']").should("be.visible");
+    });
   });
 });

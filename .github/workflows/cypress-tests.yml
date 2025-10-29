@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: "npm" # zrychlí instalaci díky cache
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -28,15 +28,25 @@ jobs:
       - name: Run Cypress tests
         uses: cypress-io/github-action@v6
         with:
-          browser: chrome # běh v Chromu (realističtější než Electron)
-          install-command: npm ci # explicitně, aby se držel lockfile
-          # env: grepTags=@smoke    # odkomentuj, pokud chceš filtrovat jen určité testy
+          browser: chrome
+          install-command: npm ci
         env:
-          CYPRESS_defaultCommandTimeout: 20000 # místo 10s → 20s
-          CYPRESS_pageLoadTimeout: 60000 # načítání stránky až 60s
-          CYPRESS_retries: 2 # flaky testy se zkusí znovu
-          CYPRESS_username: ${{ secrets.CYPRESS_username }}
-          CYPRESS_password: ${{ secrets.CYPRESS_password }}
+          CYPRESS_defaultCommandTimeout: 20000
+          CYPRESS_pageLoadTimeout: 60000
+          CYPRESS_retries: 2
+
+          # URL aplikace
+          CYPRESS_apiUrl: ${{ secrets.API_URL }}
+          CYPRESS_frontendUrl: ${{ secrets.FRONTEND_URL }}
+
+          # Testovací uživatel
+          CYPRESS_tegb_username: ${{ secrets.TEGB_USERNAME }}
+          CYPRESS_tegb_email: ${{ secrets.TEGB_EMAIL }}
+          CYPRESS_tegb_password: ${{ secrets.TEGB_PASSWORD }}
+          CYPRESS_tegb_firstName: ${{ secrets.TEGB_FIRSTNAME }}
+          CYPRESS_tegb_lastName: ${{ secrets.TEGB_LASTNAME }}
+          CYPRESS_tegb_phone: ${{ secrets.TEGB_PHONE }}
+          CYPRESS_tegb_age: ${{ secrets.TEGB_AGE }}
 
       - name: Upload Cypress artifacts (screenshots & videos)
         if: failure()
